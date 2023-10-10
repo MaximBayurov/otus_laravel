@@ -106,9 +106,7 @@ Route::get('/', function () {
         'features'
     ));
 });
-Route::get('/about', function () {
-    return view('pages.about');
-});
+Route::view('/about', 'pages.about');
 Route::get('/profile', function () {
     return view('pages.profile');
 });
