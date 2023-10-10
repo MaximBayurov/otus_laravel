@@ -1,7 +1,7 @@
 @extends('layouts.base')
 
 @section('html-class', 'h-100')
-@section('body-class') bg-white d-flex flex-column h-100 @endsection
+@section('body-class', 'bg-white d-flex flex-column h-100')
 @section('head-bottom')
     @vite('resources/sass/app.scss')
     @vite('resources/js/app.js')
