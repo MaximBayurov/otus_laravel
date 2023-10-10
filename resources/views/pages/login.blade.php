@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('h1', __('auth.h1'))
+@section('h1', __('auth.authorization'))
 
 @section('head-bottom')
     @parent
@@ -39,7 +39,7 @@
     <section class="container d-flex justify-content-center">
         <form class="form-signin" method="POST">
             @csrf
-            <h2 class="h3 mb-3 fw-normal">{{__('auth.title')}}</h2>
+            <h2 class="h3 mb-3 fw-normal">{{__('auth.please_sign_in')}}</h2>
             @if(request()->method() === 'POST')
                 <div class="alert alert-danger" role="alert">
                     Неправильный логин или пароль

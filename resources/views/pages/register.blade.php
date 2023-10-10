@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('h1', __('register.h1'))
+@section('h1', __('register.registration'))
 
 @section('head-bottom')
     @parent
@@ -39,7 +39,7 @@
     <section class="container d-flex justify-content-center">
         <form class="form-sign-up d-flex flex-column gap-4" method="POST">
             @csrf
-            <h2 class="h3 mb-0 fw-normal">{{__('register.title')}}</h2>
+            <h2 class="h3 mb-0 fw-normal">{{__('register.please_sign_up')}}</h2>
 
             <x-forms.input type="email" name="email" placeholder="name@example.com" id="floatingInput" label="{{__('forms.email')}}"/>
             <div>
