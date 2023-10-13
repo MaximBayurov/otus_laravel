@@ -12,13 +12,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-         for ($i=1; $i <= 10; $i++) {
-             $email = "user{$i}@admin.admin";
-             DB::table('users')->insert([
-                 'name' => fake()->name,
-                 'email' => $email,
-                 'password' => \Hash::make($email),
-             ]);
-         }
+        $this->call([
+            LanguagesTableSeeder::class,
+            UsersTableSeeder::class,
+        ]);
     }
 }
