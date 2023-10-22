@@ -116,3 +116,10 @@ Route::match(['get', 'post'],'/login', function () {
 Route::match(['get', 'post'], '/register', function () {
     return view('pages.register');
 });
+
+Route::get('user/{user}', function (\App\Models\User $user) {
+
+    return [
+        'roles' => $user->roles()
+    ];
+});
