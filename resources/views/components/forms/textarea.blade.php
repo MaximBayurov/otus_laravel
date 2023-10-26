@@ -1,6 +1,5 @@
 <div class="form-floating">
-    <input type="{{$type}}" @class($classes) id="{{$id}}" placeholder="{{$placeholder}}"
-           @isset($value)value="{{$value}}"@endisset name="{{$name}}" @readonly($readonly)>
+    <textarea @class($classes) id="{{$id}}" placeholder="{{$placeholder}}" name="{{$name}}" @readonly($readonly) style="height: {{$height}}px">{{$value}}</textarea>
     <label for="{{$id}}" class="form-label">{{$label}}</label>
     @isset($error)
         <div class="invalid-feedback">

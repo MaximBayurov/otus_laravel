@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class Input extends Component
+class Textarea extends Component
 {
     /**
      * Create a new component instance.
@@ -21,6 +21,7 @@ class Input extends Component
         protected array $additionalClasses = [],
         protected bool $disabled = false,
         protected bool $readonly = false,
+        protected int $height = 200,
         protected ?string $error = null,
     ) {
         //
@@ -31,7 +32,7 @@ class Input extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.forms.input', [
+        return view('components.forms.textarea', [
             'type' => $this->type,
             'id' => $this->id,
             'label' => $this->label,
@@ -47,6 +48,7 @@ class Input extends Component
                 $this->additionalClasses
             ),
             'readonly' => $this->readonly,
+            'height' => $this->height,
             'error' => $this->error,
         ]);
     }

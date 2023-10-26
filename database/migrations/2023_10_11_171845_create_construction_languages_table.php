@@ -21,8 +21,6 @@ return new class extends Migration
             $table->foreign('construction_id')->references('id')->on('constructions')->onDelete('cascade');
 
             $table->text('code');
-
-            $table->timestamps();
         });
     }
 

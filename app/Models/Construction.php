@@ -9,8 +9,19 @@ class Construction extends BaseModel
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'slug',
+        'title',
+        'description',
+    ];
+
     public function languages(): BelongsToMany
     {
-        return $this->belongsToMany(Language::class);
+        return $this->belongsToMany(Language::class)->withPivot('code');
     }
 }
