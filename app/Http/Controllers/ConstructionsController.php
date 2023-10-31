@@ -6,6 +6,7 @@ use App\Http\Requests\StoreConstructionRequest;
 use App\Http\Requests\UpdateConstructionRequest;
 use App\Models\Construction;
 use App\Models\Language;
+use Auth;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -16,8 +17,12 @@ class ConstructionsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View|\Illuminate\Foundation\Application|Factory|Application
+    public function index(): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
     {
+        if (!Auth::user()->can('viewAny', Construction::class)) {
+            return redirect()->route('admin.home');
+        }
+
         $constructions = Construction::all();
         return view('pages.admin.constructions.index', [
             'constructions' => $constructions,
@@ -27,8 +32,11 @@ class ConstructionsController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View|\Illuminate\Foundation\Application|Factory|Application
+    public function create(): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
     {
+        if (!Auth::user()->can('create', Construction::class)) {
+            return redirect()->route('admin.home');
+        }
         return view('pages.admin.constructions.create', [
             'languageOptions' => $this->getLanguageOptions(),
             'languages' => old('languages'),
@@ -40,6 +48,9 @@ class ConstructionsController extends Controller
      */
     public function store(StoreConstructionRequest $request): RedirectResponse
     {
+        if (!Auth::user()->can('create', Construction::class)) {
+            return redirect()->route('admin.home');
+        }
         /**
          * @var Construction $construction
          */
@@ -59,8 +70,11 @@ class ConstructionsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Construction $construction): View|\Illuminate\Foundation\Application|Factory|Application
+    public function show(Construction $construction): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
     {
+        if (!Auth::user()->can('viewAny', Construction::class)) {
+            return redirect()->route('admin.home');
+        }
         return view('pages.admin.constructions.show', [
             'construction' => $construction,
             'languageOptions' => $this->getLanguageOptions(),
@@ -71,8 +85,11 @@ class ConstructionsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Construction $construction): View|\Illuminate\Foundation\Application|Factory|Application
+    public function edit(Construction $construction): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
     {
+        if (!Auth::user()->can('update', $construction)) {
+            return redirect()->route('admin.home');
+        }
         return view('pages.admin.constructions.edit', [
             'construction' => $construction,
             'languageOptions' => $this->getLanguageOptions(),
@@ -85,6 +102,9 @@ class ConstructionsController extends Controller
      */
     public function update(UpdateConstructionRequest $request, Construction $construction): RedirectResponse
     {
+        if (!Auth::user()->can('update', $construction)) {
+            return redirect()->route('admin.home');
+        }
         $construction->update($request->only(['slug', 'title', 'description']));
         if ($request->has('languages')) {
             $construction->languages()->detach();
@@ -104,6 +124,9 @@ class ConstructionsController extends Controller
      */
     public function destroy(Construction $construction): RedirectResponse
     {
+        if (!Auth::user()->can('delete', $construction)) {
+            return redirect()->route('admin.home');
+        }
         $construction->delete();
 
         return redirect()

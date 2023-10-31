@@ -1,3 +1,4 @@
+@php use App\Enums\Permissions; @endphp
 @extends('layouts.admin')
 
 @section('head-bottom')
@@ -83,11 +84,13 @@ $additionalClasses = ['my-3'];
         <div class="d-flex flex-row gap-3">
             <button class="btn btn-primary" type="submit" id="edit-form">Сохранить</button>
             <a class="btn btn-secondary" href="{{route('admin.languages.show', ['language' => $language->id])}}">Просмотр</a>
+            @can((Permissions\Languages::DELETE)->code(), $language)
             <form action="{{route('admin.languages.destroy', ['language' => $language->id])}}" method="POST" id="delete-form">
                 @method('DELETE')
                 @csrf
                 <button class="btn btn-danger" form="delete-form">Удалить</button>
             </form>
+            @endcan
         </div>
     </div>
 @endsection

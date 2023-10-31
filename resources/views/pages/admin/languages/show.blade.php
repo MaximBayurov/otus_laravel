@@ -1,3 +1,4 @@
+@php use App\Enums\Permissions; @endphp
 @extends('layouts.admin')
 
 @section('h1', 'Просмотр языка программирования')
@@ -62,13 +63,19 @@ $additionalClasses = ['my-3'];
     <div class="d-flex justify-content-between">
         <a class="btn btn-secondary" href="{{route('admin.languages.index')}}">Обратно в список</a>
         <div class="d-flex flex-row gap-3">
+            @can((Permissions\Languages::UPDATE)->code(), $language)
             <a class="btn btn-primary" href="{{route('admin.languages.edit', ['language' => $language->id])}}">Редактировать</a>
+            @endcan
+            @can((Permissions\Languages::CREATE)->code(), $language)
             <a class="btn btn-success" href="{{route('admin.languages.create')}}">Добавить</a>
+            @endcan
+            @can((Permissions\Languages::DELETE)->code(), $language)
             <form action="{{route('admin.languages.destroy', ['language' => $language->id])}}" method="POST">
                 @method('DELETE')
                 @csrf
                 <button class="btn btn-danger">Удалить</button>
             </form>
+            @endcan
         </div>
     </div>
 @endsection

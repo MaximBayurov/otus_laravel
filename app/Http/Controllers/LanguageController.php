@@ -6,6 +6,7 @@ use App\Http\Requests\StoreLanguageRequest;
 use App\Http\Requests\UpdateLanguageRequest;
 use App\Models\Construction;
 use App\Models\Language;
+use Auth;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -16,8 +17,11 @@ class LanguageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View|\Illuminate\Foundation\Application|Factory|Application
+    public function index(): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
     {
+        if (!Auth::user()->can('viewAny', Language::class)) {
+            return redirect()->route('admin.home');
+        }
         $languages = Language::all();
         return view('pages.admin.languages.index', [
             'languages' => $languages,
@@ -27,8 +31,11 @@ class LanguageController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View|\Illuminate\Foundation\Application|Factory|Application
+    public function create(): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
     {
+        if (!Auth::user()->can('create', Construction::class)) {
+            return redirect()->route('admin.home');
+        }
         return view('pages.admin.languages.create', [
             'constructionOptions' => $this->getConstructionOptions(),
             'constructions' => old('constructions'),
@@ -40,6 +47,9 @@ class LanguageController extends Controller
      */
     public function store(StoreLanguageRequest $request): RedirectResponse
     {
+        if (!Auth::user()->can('create', Construction::class)) {
+            return redirect()->route('admin.home');
+        }
         /**
          * @var Language $language
          */
@@ -59,8 +69,11 @@ class LanguageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Language $language): View|\Illuminate\Foundation\Application|Factory|Application
+    public function show(Language $language): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
     {
+        if (!Auth::user()->can('viewAny', Language::class)) {
+            return redirect()->route('admin.home');
+        }
         return view('pages.admin.languages.show', [
             'language' => $language,
             'constructionOptions' => $this->getConstructionOptions(),
@@ -71,8 +84,11 @@ class LanguageController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Language $language): View|\Illuminate\Foundation\Application|Factory|Application
+    public function edit(Language $language): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
     {
+        if (!Auth::user()->can('update', $language)) {
+            return redirect()->route('admin.home');
+        }
         return view('pages.admin.languages.edit', [
             'language' => $language,
             'constructionOptions' => $this->getConstructionOptions(),
@@ -83,8 +99,11 @@ class LanguageController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateLanguageRequest $request, Language $language)
+    public function update(UpdateLanguageRequest $request, Language $language): RedirectResponse
     {
+        if (!Auth::user()->can('update', $language)) {
+            return redirect()->route('admin.home');
+        }
         $language->update($request->only(['slug', 'title', 'description']));
         if ($request->has('constructions')) {
             $language->constructions()->detach();
@@ -102,8 +121,11 @@ class LanguageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Language $language)
+    public function destroy(Language $language): RedirectResponse
     {
+        if (!Auth::user()->can('delete', $language)) {
+            return redirect()->route('admin.home');
+        }
         $language->delete();
 
         return redirect()

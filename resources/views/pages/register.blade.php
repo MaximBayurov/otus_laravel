@@ -37,14 +37,22 @@
 
 @section('content')
     <section class="container d-flex justify-content-center">
-        <form class="form-sign-up d-flex flex-column gap-4" method="POST">
+        <form class="form-sign-up d-flex flex-column gap-4" method="POST" action="{{route('register')}}">
+            @method('POST')
             @csrf
             <h2 class="h3 mb-0 fw-normal">{{__('register.please_sign_up')}}</h2>
-
-            <x-forms.input type="email" name="email" placeholder="name@example.com" id="floatingInput" label="{{__('forms.email')}}"/>
+            @if($errors->any())
+                <div class="alert alert-danger" role="alert">
+                    {!! implode('<br>', $errors->all(':message')) !!}
+                </div>
+            @endif
+            <x-forms.input type="text" name="name" placeholder="name@example.com" id="floatingInput"
+                           :value="old('name')" label="{{__('forms.name')}}"/>
+            <x-forms.input type="email" name="email" placeholder="name@example.com" id="floatingInput"
+                           :value="old('email')" label="{{__('forms.email')}}"/>
             <div>
                 <x-forms.input type="password" name="password" id="passwordInput" label="{{__('forms.password')}}"/>
-                <x-forms.input type="password" name="password_repeat" id="passwordRepeatInput" label="{{__('forms.password_repeat')}}"/>
+                <x-forms.input type="password" name="password_confirmation" id="passwordRepeatInput" label="{{__('forms.password_confirmation')}}"/>
             </div>
 
             <button class="btn btn-primary w-100 py-2" type="submit">{{__('register.submit')}}</button>

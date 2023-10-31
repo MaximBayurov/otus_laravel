@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
 |
 */
 
@@ -105,21 +105,10 @@ Route::get('/', function () {
         'subscriptions',
         'features'
     ));
-});
-Route::view('/about', 'pages.about');
+})->name('home');
+Route::view('/about', 'pages.about')->name('about');
 Route::get('/profile', function () {
     return view('pages.profile');
-});
-Route::match(['get', 'post'],'/login', function () {
-    return view('pages.login');
-});
-Route::match(['get', 'post'], '/register', function () {
-    return view('pages.register');
-});
+})->name('profile')->middleware('auth');
 
-Route::get('user/{user}', function (\App\Models\User $user) {
-
-    return [
-        'roles' => $user->roles()->get()
-    ];
-});
+require __DIR__.'/auth.php';

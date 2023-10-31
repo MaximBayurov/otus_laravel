@@ -1,3 +1,4 @@
+@php use App\Enums\Permissions; @endphp
 @extends('layouts.admin')
 
 @section('head-bottom')
@@ -83,12 +84,14 @@ $additionalClasses = ['my-3'];
         <div class="d-flex flex-row gap-3">
             <button class="btn btn-primary" type="submit" form="edit-form">Сохранить</button>
             <a class="btn btn-secondary" href="{{route('admin.constructions.show', ['construction' => $construction->id])}}">Просмотр</a>
+            @can((Permissions\Constructions::DELETE)->code(), $construction)
             <form action="{{route('admin.constructions.destroy', ['construction' => $construction->id])}}"
                   method="POST" id="delete-form">
                 @method('DELETE')
                 @csrf
                 <button class="btn btn-danger" type="submit" form="delete-form">Удалить</button>
             </form>
+            @endcan
         </div>
     </div>
 @endsection

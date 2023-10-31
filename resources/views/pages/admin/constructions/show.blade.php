@@ -1,3 +1,5 @@
+@php use App\Enums\Permissions; @endphp
+
 @extends('layouts.admin')
 
 @section('h1', 'Просмотр языковой конструкции')
@@ -62,14 +64,20 @@ $additionalClasses = ['my-3'];
     <div class="d-flex justify-content-between">
         <a class="btn btn-secondary" href="{{route('admin.constructions.index')}}">Обратно в список</a>
         <div class="d-flex flex-row gap-3">
+            @can((Permissions\Constructions::UPDATE)->code(), $construction)
             <a class="btn btn-primary" href="{{route('admin.constructions.edit', ['construction' => $construction->id])}}">Редактировать</a>
+            @endcan
+            @can((Permissions\Constructions::CREATE)->code(), $construction)
             <a class="btn btn-success" href="{{route('admin.constructions.create')}}">Добавить</a>
+            @endcan
+            @can((Permissions\Constructions::DELETE)->code(), $construction)
             <form action="{{route('admin.constructions.destroy', ['construction' => $construction->id])}}"
                   method="POST" id="delete-form">
                 @method('DELETE')
                 @csrf
                 <button class="btn btn-danger" form="delete-form">Удалить</button>
             </form>
+            @endcan
         </div>
     </div>
 @endsection

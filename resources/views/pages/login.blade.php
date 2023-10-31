@@ -37,22 +37,22 @@
 
 @section('content')
     <section class="container d-flex justify-content-center">
-        <form class="form-signin" method="POST">
+        <form class="form-signin" method="POST" action="{{route('login')}}">
+            @method('POST')
             @csrf
             <h2 class="h3 mb-3 fw-normal">{{__('auth.please_sign_in')}}</h2>
-            @if(request()->method() === 'POST')
+            @if($errors->any())
                 <div class="alert alert-danger" role="alert">
-                    Неправильный логин или пароль
+                    {!! implode('<br>', $errors->all(':message')) !!}
                 </div>
             @endif
             <x-forms.input type="email" placeholder="name@example.com" id="floatingInput" name="email"
-                           label="{{__('forms.email')}}" value="{{request()->get('email', null)}}"/>
+                           label="{{__('forms.email')}}" :value="old('email')"/>
             <x-forms.input type="password" placeholder="{{__('forms.password-placeholder')}}" id="floatingPassword"
-                           name="password" value="{{request()->get('password', null)}}"
-                           label="{{__('forms.password')}}"/>
+                           name="password" label="{{__('forms.password')}}"/>
 
-            <x-forms.checkbox id="flexCheckDefault" label="{{__('forms.remember')}}" value="remember-me"
-                              name="remember-me"/>
+            <x-forms.checkbox id="flexCheckDefault" label="{{__('forms.remember')}}" :value="old('remember', 'true')"
+                              name="remember"/>
 
             <button class="btn btn-primary w-100 py-2" type="submit">{{__('auth.submit')}}</button>
         </form>
