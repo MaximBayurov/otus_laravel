@@ -82,7 +82,7 @@ $additionalClasses = ['my-3'];
     <div class="d-flex justify-content-between">
         <a class="btn btn-secondary" href="{{route('admin.languages.index')}}">Обратно в список</a>
         <div class="d-flex flex-row gap-3">
-            <button class="btn btn-primary" type="submit" id="edit-form">Сохранить</button>
+            <button class="btn btn-primary" type="submit" form="edit-form">Сохранить</button>
             <a class="btn btn-secondary" href="{{route('admin.languages.show', ['language' => $language->id])}}">Просмотр</a>
             @can((Permissions\Languages::DELETE)->code(), $language)
             <form action="{{route('admin.languages.destroy', ['language' => $language->id])}}" method="POST" id="delete-form">

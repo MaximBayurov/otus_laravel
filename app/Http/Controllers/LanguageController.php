@@ -6,6 +6,7 @@ use App\Http\Requests\StoreLanguageRequest;
 use App\Http\Requests\UpdateLanguageRequest;
 use App\Models\Construction;
 use App\Models\Language;
+use App\Services\ConstructionService;
 use Auth;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -22,23 +23,22 @@ class LanguageController extends Controller
         if (!Auth::user()->can('viewAny', Language::class)) {
             return redirect()->route('admin.home');
         }
-        $languages = Language::all();
         return view('pages.admin.languages.index', [
-            'languages' => $languages,
+            'languages' => Language::all(),
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
+    public function create(ConstructionService $constructionService): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
     {
         if (!Auth::user()->can('create', Construction::class)) {
             return redirect()->route('admin.home');
         }
         return view('pages.admin.languages.create', [
-            'constructionOptions' => $this->getConstructionOptions(),
-            'constructions' => old('constructions'),
+            'constructionOptions' => $constructionService->getConstructionOptions(),
+            'constructions' => $constructionService->filterEmpty(old('constructions') ?? []),
         ]);
     }
 
@@ -50,17 +50,9 @@ class LanguageController extends Controller
         if (!Auth::user()->can('create', Construction::class)) {
             return redirect()->route('admin.home');
         }
-        /**
-         * @var Language $language
-         */
-        $language = Language::create($request->only(['title', 'slug', 'description']));
-        if ($request->has('constructions')) {
-            foreach ($request->get('constructions') as $construction) {
-                $language->constructions()->attach($construction['id'], [
-                    'code' => $construction['code']
-                ]);
-            }
-        }
+
+        $language = $request->handle();
+
         return redirect()
             ->route('admin.languages.index')
             ->with('alert-success', __('admin.row_created', ['entity_name' => 'Язык программирования']));
@@ -69,30 +61,30 @@ class LanguageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Language $language): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
+    public function show(Language $language, ConstructionService $constructionService): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
     {
         if (!Auth::user()->can('viewAny', Language::class)) {
             return redirect()->route('admin.home');
         }
         return view('pages.admin.languages.show', [
             'language' => $language,
-            'constructionOptions' => $this->getConstructionOptions(),
-            'constructions' => $this->getConstructionsFormatted($language),
+            'constructionOptions' => $constructionService->getConstructionOptions(),
+            'constructions' => $constructionService->getConstructionsFormatted($language),
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Language $language): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
+    public function edit(Language $language, ConstructionService $constructionService): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
     {
         if (!Auth::user()->can('update', $language)) {
             return redirect()->route('admin.home');
         }
         return view('pages.admin.languages.edit', [
             'language' => $language,
-            'constructionOptions' => $this->getConstructionOptions(),
-            'constructions' => $this->getConstructionsFormatted($language),
+            'constructionOptions' => $constructionService->getConstructionOptions(),
+            'constructions' => $constructionService->getConstructionsFormatted($language),
         ]);
     }
 
@@ -104,15 +96,9 @@ class LanguageController extends Controller
         if (!Auth::user()->can('update', $language)) {
             return redirect()->route('admin.home');
         }
-        $language->update($request->only(['slug', 'title', 'description']));
-        if ($request->has('constructions')) {
-            $language->constructions()->detach();
-            foreach ($request->get('constructions') as $construction) {
-                $language->constructions()->attach($construction['id'], [
-                    'code' => $construction['code']
-                ]);
-            }
-        }
+
+        $language = $request->handle($language);
+
         return redirect()
             ->route('admin.languages.index')
             ->with('alert-success', __('admin.row_updated', ['id' => $language->id]));
@@ -131,42 +117,5 @@ class LanguageController extends Controller
         return redirect()
             ->route('admin.languages.index')
             ->with('alert-success', __('admin.row_deleted', ['id' => $language->id]));
-    }
-
-    /**
-     * Возвращает отформатированные опции для селекта с конструкциями
-     * @return array
-     */
-    private function getConstructionOptions(): array
-    {
-        $result = [];
-        foreach (Construction::all(['id', 'title']) as $construction) {
-            $result[] = [
-                'value' => $construction->id,
-                'title' => $construction->title,
-            ];
-        }
-        return $result;
-    }
-
-    /**
-     * Возвращает конструкции языка в форматированном для отображения виде
-     *
-     * @param \App\Models\Language $language
-     *
-     * @return array
-     */
-    private function getConstructionsFormatted(Language $language): array
-    {
-        if (!empty(old('consctructions'))) {
-            return old('consctructions');
-        } else {
-            return array_map(function ($item) {
-                return [
-                    'id' => $item['pivot']['construction_id'],
-                    'code' => $item['pivot']['code'],
-                ];
-            }, $language->constructions->toArray());
-        }
     }
 }

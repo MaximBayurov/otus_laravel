@@ -18,6 +18,8 @@ class AdminCardsList {
             $item.attr('id', $newId)
             $label.attr('for', $newId)
             $item.attr('name', $item.attr('name').replace(/\[\d*\]/, `[${this.nextCardIndex}]`))
+            $item.removeClass('is-invalid');
+            $item.find('.invalid-feedback')?.remove();
         })
     }
 

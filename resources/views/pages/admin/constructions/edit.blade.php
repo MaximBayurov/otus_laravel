@@ -104,7 +104,6 @@ $additionalClasses = ['my-3'];
                 '[data-card]'
             );
             $('[data-add-card-button]').on('click', (event) => {
-                debugger;
                 cardsList.onAddCardButtonClick(event);
             });
             $(document).on('click', '[data-remove-card-button]', (event) => {

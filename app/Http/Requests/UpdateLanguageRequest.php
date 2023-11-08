@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Language;
+use App\Services\ConstructionService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -22,7 +24,7 @@ class UpdateLanguageRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = [
+        return [
             'id' => 'required',
             'slug' => [
                 'required',
@@ -31,18 +33,43 @@ class UpdateLanguageRequest extends FormRequest
             ],
             'title' => ['required', 'max:255'],
             'description' => ['max:65535'],
+            'constructions.*.id' => ['sometimes', 'required', 'exists:App\Models\Construction,id'],
+            'constructions.*.code' => ['sometimes', 'required'],
         ];
+    }
 
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        /**
+         * @var $constructionService ConstructionService
+         */
+        $constructionService = \App::get(ConstructionService::class);
 
-        $requestConstructions = $this->get('constructions');
-        if (!empty($requestConstructions)
-            && (!empty(reset($requestConstructions)['id'])
-                || !empty(reset($requestConstructions)['code']))) {
+        $this->merge([
+            "constructions" => $constructionService->filterEmpty($this->get('constructions') ?? []),
+        ]);
+    }
 
-            $rules['constructions.*.id'] = ['exists:App\Models\Construction,id'];
-            $rules['constructions.*.code'] = ['required'];
+    /**
+     * Обработка запроса на обновление языка программирования
+     * @param \App\Models\Language $language
+     *
+     * @return \App\Models\Language
+     */
+    public function handle(Language $language): Language
+    {
+        $language->update($this->only(['slug', 'title', 'description']));
+        if ($this->has('constructions')) {
+            $language->constructions()->detach();
+            foreach ($this->get('constructions') as $construction) {
+                $language->constructions()->attach($construction['id'], [
+                    'code' => $construction['code']
+                ]);
+            }
         }
-
-        return $rules;
+        return $language;
     }
 }
