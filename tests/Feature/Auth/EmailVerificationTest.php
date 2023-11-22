@@ -51,4 +51,19 @@ class EmailVerificationTest extends TestCase
 
         $this->assertFalse($user->fresh()->hasVerifiedEmail());
     }
+
+    public function test_mark_already_verified_users_email(): void
+    {
+        $user = User::factory()->create();
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)]
+        );
+
+        $response = $this->actingAs($user)->get($verificationUrl);
+
+        $response->assertRedirect(config('app.frontend_url').RouteServiceProvider::HOME.'?verified=1');
+    }
 }

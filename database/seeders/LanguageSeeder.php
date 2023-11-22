@@ -15,7 +15,7 @@ class LanguageSeeder extends Seeder
         /** @var \Database\Factories\LanguageFactory $factory */
         $factory = Language::factory();
         $factory
-            ->count(count($factory::LANGUAGE_TITLES))
+            ->count(10)
             ->create();
     }
 }

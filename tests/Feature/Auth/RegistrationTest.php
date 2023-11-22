@@ -9,6 +9,12 @@ class RegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_is_register_page_available(): void
+    {
+        $response = $this->get('/register');
+        $response->assertOk();
+    }
+
     public function test_new_users_can_register(): void
     {
         $response = $this->post('/register', [

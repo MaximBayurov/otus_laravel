@@ -10,11 +10,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class LanguageFactory extends Factory
 {
-    const LANGUAGE_TITLES = [
-        'php',
-        'Go/golang',
-        'Си'
-    ];
 
     /**
      * Define the model's default state.
@@ -23,7 +18,7 @@ class LanguageFactory extends Factory
      */
     public function definition(): array
     {
-        $title = fake()->unique()->randomElement(self::LANGUAGE_TITLES);
+        $title = fake()->unique()->text(20);
         return [
             'slug' => str_slug($title),
             'title' => $title,

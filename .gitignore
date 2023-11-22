@@ -8,6 +8,7 @@
 .env
 .env.backup
 .env.production
+.env.testing
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -19,3 +20,4 @@ yarn-error.log
 /.vscode
 _ide_helper.php
 .phpstorm.meta.php
+coverage-report

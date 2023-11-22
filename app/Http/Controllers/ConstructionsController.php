@@ -19,7 +19,7 @@ class ConstructionsController extends Controller
      */
     public function index(): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
     {
-        if (!Auth::user()->can('viewAny', Construction::class)) {
+        if (!Auth::user()?->can('viewAny', Construction::class)) {
             return redirect()->route('admin.home');
         }
 
@@ -33,7 +33,7 @@ class ConstructionsController extends Controller
      */
     public function create(LanguageService $languageService): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
     {
-        if (!Auth::user()->can('create', Construction::class)) {
+        if (!Auth::user()?->can('create', Construction::class)) {
             return redirect()->route('admin.home');
         }
         return view('pages.admin.constructions.create', [
@@ -47,7 +47,7 @@ class ConstructionsController extends Controller
      */
     public function store(StoreConstructionRequest $request): RedirectResponse
     {
-        if (!Auth::user()->can('create', Construction::class)) {
+        if (!Auth::user()?->can('create', Construction::class)) {
             return redirect()->route('admin.home');
         }
 
@@ -63,7 +63,7 @@ class ConstructionsController extends Controller
      */
     public function show(Construction $construction, LanguageService $languageService): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
     {
-        if (!Auth::user()->can('viewAny', Construction::class)) {
+        if (!Auth::user()?->can('viewAny', Construction::class)) {
             return redirect()->route('admin.home');
         }
         return view('pages.admin.constructions.show', [
@@ -78,7 +78,7 @@ class ConstructionsController extends Controller
      */
     public function edit(Construction $construction, LanguageService $languageService): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
     {
-        if (!Auth::user()->can('update', $construction)) {
+        if (!Auth::user()?->can('update', $construction)) {
             return redirect()->route('admin.home');
         }
         return view('pages.admin.constructions.edit', [
@@ -93,7 +93,7 @@ class ConstructionsController extends Controller
      */
     public function update(UpdateConstructionRequest $request, Construction $construction): RedirectResponse
     {
-        if (!Auth::user()->can('update', $construction)) {
+        if (!Auth::user()?->can('update', $construction)) {
             return redirect()->route('admin.home');
         }
 

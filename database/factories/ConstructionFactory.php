@@ -10,21 +10,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ConstructionFactory extends Factory
 {
-    const ITEMS = [
-        [
-            'slug' => 'if',
-            'title' => 'Условная конструкция если',
-        ],
-        [
-            'slug' => 'for',
-            'title' => 'Цикл со счётчиком',
-        ],
-        [
-            'slug' => 'comment',
-            'title' => 'Комментарий',
-        ],
-    ];
-
     /**
      * Define the model's default state.
      *
@@ -32,10 +17,10 @@ class ConstructionFactory extends Factory
      */
     public function definition(): array
     {
-        $constructionData = fake()->unique()->randomElement(self::ITEMS);
+        $title = fake()->unique()->text(20);
         return [
-            'slug' => $constructionData['slug'],
-            'title' => $constructionData['title'],
+            'slug' => str_slug($title),
+            'title' => $title,
             'description' => fake()->text,
         ];
     }

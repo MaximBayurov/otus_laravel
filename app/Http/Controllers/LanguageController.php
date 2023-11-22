@@ -20,7 +20,7 @@ class LanguageController extends Controller
      */
     public function index(): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
     {
-        if (!Auth::user()->can('viewAny', Language::class)) {
+        if (!Auth::user()?->can('viewAny', Language::class)) {
             return redirect()->route('admin.home');
         }
         return view('pages.admin.languages.index', [
@@ -33,7 +33,7 @@ class LanguageController extends Controller
      */
     public function create(ConstructionService $constructionService): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
     {
-        if (!Auth::user()->can('create', Construction::class)) {
+        if (!Auth::user()?->can('create', Language::class)) {
             return redirect()->route('admin.home');
         }
         return view('pages.admin.languages.create', [
@@ -47,7 +47,7 @@ class LanguageController extends Controller
      */
     public function store(StoreLanguageRequest $request): RedirectResponse
     {
-        if (!Auth::user()->can('create', Construction::class)) {
+        if (!Auth::user()?->can('create', Language::class)) {
             return redirect()->route('admin.home');
         }
 
@@ -63,7 +63,7 @@ class LanguageController extends Controller
      */
     public function show(Language $language, ConstructionService $constructionService): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
     {
-        if (!Auth::user()->can('viewAny', Language::class)) {
+        if (!Auth::user()?->can('viewAny', Language::class)) {
             return redirect()->route('admin.home');
         }
         return view('pages.admin.languages.show', [
@@ -78,7 +78,7 @@ class LanguageController extends Controller
      */
     public function edit(Language $language, ConstructionService $constructionService): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
     {
-        if (!Auth::user()->can('update', $language)) {
+        if (!Auth::user()?->can('update', $language)) {
             return redirect()->route('admin.home');
         }
         return view('pages.admin.languages.edit', [
@@ -93,7 +93,7 @@ class LanguageController extends Controller
      */
     public function update(UpdateLanguageRequest $request, Language $language): RedirectResponse
     {
-        if (!Auth::user()->can('update', $language)) {
+        if (!Auth::user()?->can('update', $language)) {
             return redirect()->route('admin.home');
         }
 
@@ -109,7 +109,7 @@ class LanguageController extends Controller
      */
     public function destroy(Language $language): RedirectResponse
     {
-        if (!Auth::user()->can('delete', $language)) {
+        if (!Auth::user()?->can('delete', $language)) {
             return redirect()->route('admin.home');
         }
         $language->delete();

@@ -16,7 +16,7 @@ class ConstructionSeeder extends Seeder
         /** @var \Database\Factories\ConstructionFactory $factory */
         $factory = Construction::factory();
         $factory
-            ->count(count($factory::ITEMS))
+            ->count(10)
             ->create();
     }
 }
