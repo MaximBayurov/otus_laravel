@@ -111,4 +111,10 @@ Route::get('/profile', function () {
     return view('pages.profile');
 })->name('profile')->middleware('auth');
 
+Route::get('/log', function () {
+    $request = request();
+    Log::debug('Test message', compact('request'));
+    return 'ok';
+});
+
 require __DIR__.'/auth.php';

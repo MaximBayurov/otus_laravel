@@ -1,8 +1,10 @@
 <?php
 
+use Monolog\Handler\FilterHandler;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
+use Monolog\Handler\TelegramBotHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
 
 return [
@@ -54,7 +56,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['daily', 'telegram'],
             'ignore_exceptions' => false,
         ],
 
@@ -92,6 +94,16 @@ return [
                 'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
             ],
             'processors' => [PsrLogMessageProcessor::class],
+        ],
+
+        "telegram" => [
+            'driver'  => 'monolog',
+            'handler' => FilterHandler::class,
+            'level' => env('LOG_LEVEL', 'debug'),
+            'with' => [
+                'handler' => new TelegramBotHandler($apiKey = env('TELEGRAM_API_KEY'), $channel = env('TELEGRAM_CHANNEL'))
+
+            ]
         ],
 
         'stderr' => [
