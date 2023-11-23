@@ -106,7 +106,8 @@ Route::get('/', function () {
         'features'
     ));
 })->name('home');
-Route::view('/about', 'pages.about')->name('about');
+Route::view('/{locale}/about', 'pages.about')->name('about')->middleware('locale');
+Route::view('/{locale}/test', 'pages.test')->name('test')->middleware('locale');
 Route::get('/profile', function () {
     return view('pages.profile');
 })->name('profile')->middleware('auth');

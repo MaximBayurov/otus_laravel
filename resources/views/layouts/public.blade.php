@@ -75,8 +75,9 @@
                 <div class="col mb-3">
                     <h5>Основные</h5>
                     <ul class="nav flex-column">
-                        <li class="nav-item mb-2"><a href="/" class="nav-link p-0 text-body-secondary">Главная</a></li>
-                        <li class="nav-item mb-2"><a href="/about" class="nav-link p-0 text-body-secondary">О нас</a>
+                        <li class="nav-item mb-2"><a href="{{route('home')}}" class="nav-link p-0 text-body-secondary">Главная</a></li>
+                        <li class="nav-item mb-2"><a href="{{route('about', ['locale' => App::getLocale()])}}" class="nav-link p-0 text-body-secondary">{{__('about.title')}}</a>
+                        <li class="nav-item mb-2"><a href="{{route('test', ['locale' => App::getLocale()])}}" class="nav-link p-0 text-body-secondary">{{__('test.title')}}</a>
                         </li>
                     </ul>
                 </div>
