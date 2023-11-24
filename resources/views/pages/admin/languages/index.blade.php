@@ -68,6 +68,7 @@
             @endforeach
             </tbody>
         </table>
+        {{$languages->links('components.pagination', ['collection' => $languages])}}
     @else
         <div class="alert alert-info" role="alert">
             Пока нет никаких записей

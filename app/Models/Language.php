@@ -9,6 +9,8 @@ class Language extends BaseModel
 {
     use HasFactory;
 
+    const CACHE_TAG = 'languages';
+
     /**
      * The attributes that are mass assignable.
      *
