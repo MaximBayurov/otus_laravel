@@ -6,10 +6,8 @@ use App\Http\Requests\StoreLanguageRequest;
 use App\Http\Requests\UpdateLanguageRequest;
 use App\Models\Construction;
 use App\Models\Language;
-use App\Services\CacheHelper;
 use App\Services\ConstructionService;
 use Auth;
-use Cache;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -20,26 +18,14 @@ class LanguageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(CacheHelper $cacheHelper): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
+    public function index(): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
     {
         if (!Auth::user()?->can('viewAny', Language::class)) {
             return redirect()->route('admin.home');
         }
-
-        $pageName = 'page';
-        $page = request()->get($pageName);
-        $languages = Cache::tags([Language::CACHE_TAG])->rememberForever(
-            $cacheHelper->makeKey(['language:list', $page]),
-            function () use ($pageName) {
-                return Language::paginate(10, pageName: $pageName);
-            }
-        );
-
-        if (!empty($page) && (int)$page > 1 && $languages->count() === 0) {
-            return redirect(route('admin.languages.index'));
-        }
-
-        return view('pages.admin.languages.index', compact('languages'));
+        return view('pages.admin.languages.index', [
+            'languages' => Language::all(),
+        ]);
     }
 
     /**
@@ -50,14 +36,10 @@ class LanguageController extends Controller
         if (!Auth::user()?->can('create', Language::class)) {
             return redirect()->route('admin.home');
         }
-
-        $constructionOptions = $constructionService->getConstructionOptions();
-        $constructions = $constructionService->filterEmpty(old('constructions') ?? []);
-
-        return view('pages.admin.languages.create', compact([
-            'constructions',
-            'constructionOptions'
-        ]));
+        return view('pages.admin.languages.create', [
+            'constructionOptions' => $constructionService->getConstructionOptions(),
+            'constructions' => $constructionService->filterEmpty(old('constructions') ?? []),
+        ]);
     }
 
     /**
@@ -84,15 +66,11 @@ class LanguageController extends Controller
         if (!Auth::user()?->can('viewAny', Language::class)) {
             return redirect()->route('admin.home');
         }
-
-        $constructionOptions = $constructionService->getConstructionOptions();
-        $constructions = $constructionService->getConstructionsFormatted($language);
-
-        return view('pages.admin.languages.show', compact([
-            'language',
-            'constructions',
-            'constructionOptions',
-        ]));
+        return view('pages.admin.languages.show', [
+            'language' => $language,
+            'constructionOptions' => $constructionService->getConstructionOptions(),
+            'constructions' => $constructionService->getConstructionsFormatted($language),
+        ]);
     }
 
     /**
@@ -103,15 +81,11 @@ class LanguageController extends Controller
         if (!Auth::user()?->can('update', $language)) {
             return redirect()->route('admin.home');
         }
-
-        $constructionOptions = $constructionService->getConstructionOptions();
-        $constructions = $constructionService->getConstructionsFormatted($language);
-
-        return view('pages.admin.languages.edit', compact([
-            'language',
-            'constructions',
-            'constructionOptions',
-        ]));
+        return view('pages.admin.languages.edit', [
+            'language' => $language,
+            'constructionOptions' => $constructionService->getConstructionOptions(),
+            'constructions' => $constructionService->getConstructionsFormatted($language),
+        ]);
     }
 
     /**
@@ -139,7 +113,6 @@ class LanguageController extends Controller
             return redirect()->route('admin.home');
         }
         $language->delete();
-        \Cache::tags([Language::CACHE_TAG, Construction::CACHE_TAG])->flush();
 
         return redirect()
             ->route('admin.languages.index')

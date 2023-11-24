@@ -9,8 +9,6 @@ class Construction extends BaseModel
 {
     use HasFactory;
 
-    const CACHE_TAG = 'constructions';
-
     /**
      * The attributes that are mass assignable.
      *

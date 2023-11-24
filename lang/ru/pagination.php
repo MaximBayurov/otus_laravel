@@ -15,5 +15,5 @@ return [
 
     'previous' => '&laquo; Назад',
     'next' => 'Вперед &raquo;',
-    'aria_label' => 'Постраничная навигация',
+
 ];

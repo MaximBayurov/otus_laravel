@@ -112,7 +112,7 @@
                     {{session()->get('error')}}
                 </div>
             @endif
-            <div class="d-flex flex-column vh-100">
+            <div>
                 @if(session()->has('alert-success'))
                     <div class="alert alert-success">
                         {{session('alert-success')}}

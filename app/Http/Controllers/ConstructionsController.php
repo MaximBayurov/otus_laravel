@@ -5,10 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreConstructionRequest;
 use App\Http\Requests\UpdateConstructionRequest;
 use App\Models\Construction;
-use App\Services\CacheHelper;
 use App\Services\LanguageService;
 use Auth;
-use Cache;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -19,26 +17,15 @@ class ConstructionsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(CacheHelper $cacheHelper): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
+    public function index(): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
     {
         if (!Auth::user()?->can('viewAny', Construction::class)) {
             return redirect()->route('admin.home');
         }
 
-        $pageName = 'page';
-        $page = request()->get($pageName);
-        $constructions = Cache::tags([Construction::CACHE_TAG])->rememberForever(
-            $cacheHelper->makeKey(['constructions:list', $page]),
-            function () use ($pageName) {
-                return Construction::paginate(10, pageName: $pageName);
-            }
-        );
-
-        if (!empty($page) && (int)$page > 1 && $constructions->count() === 0) {
-            return redirect(route('admin.constructions.index'));
-        }
-
-        return view('pages.admin.constructions.index', compact('constructions'));
+        return view('pages.admin.constructions.index', [
+            'constructions' =>  Construction::all(),
+        ]);
     }
 
     /**
@@ -49,11 +36,10 @@ class ConstructionsController extends Controller
         if (!Auth::user()?->can('create', Construction::class)) {
             return redirect()->route('admin.home');
         }
-
-        $languageOptions = $languageService->getLanguageOptions();
-        $languages = $languageService->filterEmpty(old('languages') ?? []);
-
-        return view('pages.admin.constructions.create', compact('languageOptions', 'languages'));
+        return view('pages.admin.constructions.create', [
+            'languageOptions' => $languageService->getLanguageOptions(),
+            'languages' => $languageService->filterEmpty(old('languages') ?? []),
+        ]);
     }
 
     /**
@@ -75,23 +61,16 @@ class ConstructionsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(
-        Construction $construction,
-        LanguageService $languageService
-    ): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
+    public function show(Construction $construction, LanguageService $languageService): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
     {
         if (!Auth::user()?->can('viewAny', Construction::class)) {
             return redirect()->route('admin.home');
         }
-
-        $languageOptions = $languageService->getLanguageOptions();
-        $languages = $languageService->getLanguagesFormatted($construction);
-
-        return view('pages.admin.constructions.show', compact(
-            'construction',
-            'languages',
-            'languageOptions'
-        ));
+        return view('pages.admin.constructions.show', [
+            'construction' => $construction,
+            'languageOptions' => $languageService->getLanguageOptions(),
+            'languages' => $languageService->getLanguagesFormatted($construction),
+        ]);
     }
 
     /**
@@ -102,15 +81,11 @@ class ConstructionsController extends Controller
         if (!Auth::user()?->can('update', $construction)) {
             return redirect()->route('admin.home');
         }
-
-        $languageOptions = $languageService->getLanguageOptions();
-        $languages = $languageService->getLanguagesFormatted($construction);
-
-        return view('pages.admin.constructions.edit', compact(
-            'construction',
-            'languages',
-            'languageOptions'
-        ));
+        return view('pages.admin.constructions.edit', [
+            'construction' => $construction,
+            'languageOptions' => $languageService->getLanguageOptions(),
+            'languages' => $languageService->getLanguagesFormatted($construction),
+        ]);
     }
 
     /**
@@ -138,7 +113,6 @@ class ConstructionsController extends Controller
             return redirect()->route('admin.home');
         }
         $construction->delete();
-        Cache::tags([Construction::CACHE_TAG, Construction::CACHE_TAG])->flush();
 
         return redirect()
             ->route('admin.constructions.index')
