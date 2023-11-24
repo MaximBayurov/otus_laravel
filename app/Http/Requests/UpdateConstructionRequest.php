@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Construction;
+use App\Models\Language;
 use App\Services\LanguageService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -69,7 +70,9 @@ class UpdateConstructionRequest extends FormRequest
                     'code' => $language['code']
                 ]);
             }
+            \Cache::tags([Language::CACHE_TAG])->flush();
         }
+        \Cache::tags([Construction::CACHE_TAG])->flush();
         return $construction;
     }
 }

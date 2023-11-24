@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\CacheHelper;
 use App\Services\ConstructionService;
 use App\Services\LanguageService;
 use Illuminate\Contracts\Foundation\Application;
@@ -19,6 +20,9 @@ class AppHelpersProvider extends ServiceProvider
         });
         $this->app->singleton(ConstructionService::class, function (Application $app) {
             return new ConstructionService();
+        });
+        $this->app->singleton(CacheHelper::class, function (Application $app) {
+            return new CacheHelper();
         });
     }
 

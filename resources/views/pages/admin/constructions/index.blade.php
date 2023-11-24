@@ -67,6 +67,7 @@
             @endforeach
             </tbody>
         </table>
+        {{$constructions->links('components.pagination', ['collection' => $constructions])}}
     @else
         <div class="alert alert-info" role="alert">
             Пока нет никаких записей

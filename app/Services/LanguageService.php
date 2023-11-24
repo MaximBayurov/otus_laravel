@@ -10,20 +10,30 @@ use App\Models\Language;
  */
 class LanguageService
 {
+    public function __construct(
+        private CacheHelper $cacheHelper
+    ) {
+    }
+
     /**
      * Возвращает отформатированные опции для селекта с языками
      * @return array
      */
     public function getLanguageOptions(): array
     {
-        $result = [];
-        foreach (Language::all(['id', 'title']) as $language) {
-            $result[] = [
-                'value' => $language->id,
-                'title' => $language->title,
-            ];
-        }
-        return $result;
+        return \Cache::tags([Language::CACHE_TAG])->rememberForever(
+            $this->cacheHelper->makeKey(['language:options']),
+            function () {
+                $result = [];
+                foreach (Language::all(['id', 'title']) as $language) {
+                    $result[] = [
+                        'value' => $language->id,
+                        'title' => $language->title,
+                    ];
+                }
+                return $result;
+            }
+        );
     }
 
     /**
@@ -38,14 +48,19 @@ class LanguageService
         $oldLanguages = $this->filterEmpty(old('languages') ?? []);
         if (!empty($oldLanguages)) {
             return $oldLanguages;
-        } else {
-            return array_map(function ($item) {
-                return [
-                    'id' => $item['pivot']['language_id'],
-                    'code' => $item['pivot']['code'],
-                ];
-            }, $construction->languages->toArray());
         }
+
+        return \Cache::tags([Construction::CACHE_TAG, Language::CACHE_TAG])->rememberForever(
+            $this->cacheHelper->makeKey(['construction:languages:formatted', $construction->id]),
+            function () use ($construction) {
+                return array_map(function ($item) {
+                    return [
+                        'id' => $item['pivot']['language_id'],
+                        'code' => $item['pivot']['code'],
+                    ];
+                }, $construction->languages->toArray());
+            }
+        );
     }
 
     /**
