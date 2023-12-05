@@ -12,7 +12,8 @@
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
         "longman/telegram-bot": "^0.82.0",
-        "spatie/laravel-permission": "^6.0"
+        "spatie/laravel-permission": "^6.0",
+        "mbayurov/otus_laravel_hw11": "^1"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.9",
@@ -71,6 +72,12 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/ilya-nurullin/img2ascii"
+        }
+    ]
 }
