@@ -6,6 +6,7 @@ use App\Http\Requests\StoreConstructionRequest;
 use App\Http\Requests\UpdateConstructionRequest;
 use App\Models\Construction;
 use App\Services\CacheHelper;
+use App\Services\ConstructionService;
 use App\Services\LanguageService;
 use Auth;
 use Cache;
@@ -19,22 +20,16 @@ class ConstructionsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(CacheHelper $cacheHelper): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
+    public function index(ConstructionService $constructionService): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
     {
         if (!Auth::user()?->can('viewAny', Construction::class)) {
             return redirect()->route('admin.home');
         }
 
-        $pageName = 'page';
-        $page = request()->get($pageName);
-        $constructions = Cache::tags([Construction::CACHE_TAG])->rememberForever(
-            $cacheHelper->makeKey(['constructions:list', $page]),
-            function () use ($pageName) {
-                return Construction::paginate(10, pageName: $pageName);
-            }
-        );
+        $page = (int)request()->get($constructionService::PAGE_NAME, 1);
+        $constructions = $constructionService->getPagination($page);
 
-        if (!empty($page) && (int)$page > 1 && $constructions->count() === 0) {
+        if ($constructions->count() === 0 && $constructions->hasPages()) {
             return redirect(route('admin.constructions.index'));
         }
 

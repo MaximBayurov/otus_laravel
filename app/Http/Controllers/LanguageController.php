@@ -8,6 +8,7 @@ use App\Models\Construction;
 use App\Models\Language;
 use App\Services\CacheHelper;
 use App\Services\ConstructionService;
+use App\Services\LanguageService;
 use Auth;
 use Cache;
 use Illuminate\Contracts\Foundation\Application;
@@ -20,22 +21,16 @@ class LanguageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(CacheHelper $cacheHelper): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
+    public function index(LanguageService $languageService): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
     {
         if (!Auth::user()?->can('viewAny', Language::class)) {
             return redirect()->route('admin.home');
         }
 
-        $pageName = 'page';
-        $page = request()->get($pageName);
-        $languages = Cache::tags([Language::CACHE_TAG])->rememberForever(
-            $cacheHelper->makeKey(['language:list', $page]),
-            function () use ($pageName) {
-                return Language::paginate(10, pageName: $pageName);
-            }
-        );
+        $page = (int)request()->get($languageService::PAGE_NAME, 1);
+        $languages = $languageService->getPagination($page);
 
-        if (!empty($page) && (int)$page > 1 && $languages->count() === 0) {
+        if ($languages->hasPages() && $languages->count() === 0) {
             return redirect(route('admin.languages.index'));
         }
 
