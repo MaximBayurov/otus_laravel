@@ -2,9 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Attributes\CachedForModelMethod;
 use App\Attributes\CachedMethod;
-use App\Attributes\CachedPaginationMethod;
 use App\Enums\CachedMethodTypesEnum;
 use App\Models\BaseModel;
 use App\Services\CacheHelper;
@@ -138,21 +136,21 @@ class HeatServicesCache extends Command
             foreach ($methods as $method) {
                 $cachedMethodAttr = $method->getAttributes(CachedMethod::class);
                 if (count($cachedMethodAttr) > 0) {
+                    $cachedMethodAttr = reset($cachedMethodAttr)->newInstance();
                     $data = [
                         'method' => $method,
-                        'cacheKey' => reset($cachedMethodAttr)->newInstance()->key,
-                        'type' => CachedMethodTypesEnum::SIMPLE,
+                        'cacheKey' => $cachedMethodAttr->key,
+                        'type' => $cachedMethodAttr->type,
                     ];
 
-                    if (count($method->getAttributes(CachedPaginationMethod::class)) > 0) {
-                        $data['type'] = CachedMethodTypesEnum::PAGINATION;
-                    } elseif (count($cachedForModelMethodAttr = $method->getAttributes(CachedForModelMethod::class)) > 0) {
-                        $cachedForModelMethodAttr = reset($cachedForModelMethodAttr)->newInstance();
-                        if (!is_a($cachedForModelMethodAttr->model, BaseModel::class, true)) {
+                    if ($cachedMethodAttr->type === CachedMethodTypesEnum::FOR_MODEL) {
+                        if (
+                            empty($cachedMethodAttr->model)
+                            || !is_a($cachedMethodAttr->model, BaseModel::class, true)
+                        ) {
                             continue;
                         }
-                        $data['type'] = CachedMethodTypesEnum::FOR_MODEL;
-                        $data['model'] = $cachedForModelMethodAttr->model;
+                        $data['model'] = $cachedMethodAttr->model;
                     }
 
                     self::$cachedMethodsData[] = $data;

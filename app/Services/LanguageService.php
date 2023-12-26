@@ -2,9 +2,8 @@
 
 namespace App\Services;
 
-use App\Attributes\CachedForModelMethod;
 use App\Attributes\CachedMethod;
-use App\Attributes\CachedPaginationMethod;
+use App\Enums\CachedMethodTypesEnum;
 use App\Models\Construction;
 use App\Models\Language;
 use Cache;
@@ -74,8 +73,7 @@ class LanguageService implements PaginationService
         }));
     }
 
-    #[CachedPaginationMethod()]
-    #[CachedMethod(key:'language:list')]
+    #[CachedMethod(key:'language:list', type: CachedMethodTypesEnum::PAGINATION)]
     /**
      * Возвращает пагинацию для конкретной страницы
      * @param int $page
@@ -92,8 +90,11 @@ class LanguageService implements PaginationService
         );
     }
 
-    #[CachedMethod(key:'construction:languages:formatted')]
-    #[CachedForModelMethod(model: Construction::class)]
+    #[CachedMethod(
+        key:'construction:languages:formatted',
+        type: CachedMethodTypesEnum::FOR_MODEL,
+        model: Construction::class
+    )]
     /**
      * Возвращает массив отформатированных языков программирования для языковой конструкции
      * @param \App\Models\Construction $construction
