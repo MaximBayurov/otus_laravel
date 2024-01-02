@@ -11,6 +11,11 @@ class Construction extends BaseModel
 
     const CACHE_TAG = 'constructions';
 
+    protected $casts = [
+        'updated_at'  => 'datetime:Y-m-d H:m:s',
+        'created_at' => 'datetime:Y-m-d H:m:s',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ConstructionsController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\LanguageController;
 
 Route::get('/', function () {
@@ -12,3 +14,14 @@ Route::get('/', function () {
 
 Route::resource('constructions', ConstructionsController::class);
 Route::resource('languages', LanguageController::class);
+
+Route::prefix('/import')->name('import.')->controller(ImportController::class)->group(function () {
+    Route::get('/',"index")->name('index');
+    Route::post('/fields',"getFields")->name('fields');
+    Route::post('/',"start")->name('start');
+});
+
+Route::prefix('/export')->name('export.')->controller(ExportController::class)->group(function () {
+    Route::get('/',"index")->name('index');
+    Route::post('/',"start")->name('start');
+});

@@ -6,6 +6,7 @@
 @section('head-bottom')
     @vite('resources/sass/admin.scss')
     @vite('resources/js/admin.js')
+    <link rel="stylesheet" href="{{ URL::asset('css/admin/style.css') }}">
 @endsection
 @section('body')
     @section('svg')
@@ -70,6 +71,17 @@
                         </div>
                     </li>
                 @endcan
+
+                <li class="mb-1">
+                    <a href="{{route('admin.export.index')}}" class="btn btn-toggle btn-toggle--no-arrow d-inline-flex align-items-center rounded border-0 collapsed">
+                        Экспорт
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="{{route('admin.import.index')}}" class="btn btn-toggle btn-toggle--no-arrow d-inline-flex align-items-center rounded border-0 collapsed">
+                        Импорт
+                    </a>
+                </li>
                 <li class="border-top my-3"></li>
                 <li class="mb-1">
                     <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"

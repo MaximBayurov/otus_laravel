@@ -1,0 +1,4 @@
+.btn-toggle--no-arrow::before {
+    content: "";
+    width: 0;
+}
