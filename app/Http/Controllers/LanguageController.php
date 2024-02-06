@@ -4,31 +4,33 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLanguageRequest;
 use App\Http\Requests\UpdateLanguageRequest;
-use App\Models\Construction;
-use App\Models\Language;
-use App\Services\CacheHelper;
-use App\Services\ConstructionService;
-use App\Services\LanguageService;
 use Auth;
-use Cache;
+use Domain\ModuleLanguageConstructions\Models\Language;
+use Domain\ModuleLanguageConstructions\Repositories\ConstructionsRepository;
+use Domain\ModuleLanguageConstructions\Repositories\LanguagesRepository;
+use Domain\ModuleLanguageConstructions\Services\ConstructionImplementationsService;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class LanguageController extends Controller
 {
     /**
      * Display a listing of the resource.
+     * @throws ContainerExceptionInterface|NotFoundExceptionInterface
      */
-    public function index(LanguageService $languageService): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
-    {
+    public function index(
+        LanguagesRepository $languagesRepository
+    ): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application {
         if (!Auth::user()?->can('viewAny', Language::class)) {
             return redirect()->route('admin.home');
         }
 
-        $page = (int)request()->get($languageService::PAGE_NAME, 1);
-        $languages = $languageService->getPagination($page);
+        $page = (int) request()->get($languagesRepository::PAGE_NAME, 1);
+        $languages = $languagesRepository->getPagination($page);
 
         if ($languages->hasPages() && $languages->count() === 0) {
             return redirect(route('admin.languages.index'));
@@ -40,19 +42,24 @@ class LanguageController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(ConstructionService $constructionService): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
-    {
+    public function create(
+        ConstructionImplementationsService $implementationsService,
+        ConstructionsRepository $constructionsRepository
+    ): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application {
         if (!Auth::user()?->can('create', Language::class)) {
             return redirect()->route('admin.home');
         }
 
-        $constructionOptions = $constructionService->getConstructionOptions();
-        $constructions = $constructionService->filterEmpty(old('constructions') ?? []);
+        $constructionOptions = $constructionsRepository->getOptions();
+        $constructions = $implementationsService->filterEmpty(old('constructions') ?? []);
 
-        return view('pages.admin.languages.create', compact([
-            'constructions',
-            'constructionOptions'
-        ]));
+        return view(
+            'pages.admin.languages.create',
+            compact([
+                'constructions',
+                'constructionOptions',
+            ])
+        );
     }
 
     /**
@@ -64,7 +71,7 @@ class LanguageController extends Controller
             return redirect()->route('admin.home');
         }
 
-        $language = $request->handle();
+        $request->handle();
 
         return redirect()
             ->route('admin.languages.index')
@@ -74,39 +81,51 @@ class LanguageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Language $language, ConstructionService $constructionService): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
-    {
+    public function show(
+        Language $language,
+        ConstructionImplementationsService $implementationsService,
+        ConstructionsRepository $constructionsRepository
+    ): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application {
         if (!Auth::user()?->can('viewAny', Language::class)) {
             return redirect()->route('admin.home');
         }
 
-        $constructionOptions = $constructionService->getConstructionOptions();
-        $constructions = $constructionService->getConstructionsFormatted($language);
+        $constructionOptions = $constructionsRepository->getOptions();
+        $constructions = $implementationsService->getFormattedForLanguage($language, old('constructions', []));
 
-        return view('pages.admin.languages.show', compact([
-            'language',
-            'constructions',
-            'constructionOptions',
-        ]));
+        return view(
+            'pages.admin.languages.show',
+            compact([
+                'language',
+                'constructions',
+                'constructionOptions',
+            ])
+        );
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Language $language, ConstructionService $constructionService): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application
-    {
+    public function edit(
+        Language $language,
+        ConstructionsRepository $constructionsRepository,
+        ConstructionImplementationsService $implementationsService
+    ): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application {
         if (!Auth::user()?->can('update', $language)) {
             return redirect()->route('admin.home');
         }
 
-        $constructionOptions = $constructionService->getConstructionOptions();
-        $constructions = $constructionService->getConstructionsFormatted($language);
+        $constructionOptions = $constructionsRepository->getOptions();
+        $constructions = $implementationsService->getFormattedForLanguage($language, old('constructions', []));
 
-        return view('pages.admin.languages.edit', compact([
-            'language',
-            'constructions',
-            'constructionOptions',
-        ]));
+        return view(
+            'pages.admin.languages.edit',
+            compact([
+                'language',
+                'constructions',
+                'constructionOptions',
+            ])
+        );
     }
 
     /**
@@ -118,26 +137,26 @@ class LanguageController extends Controller
             return redirect()->route('admin.home');
         }
 
-        $language = $request->handle($language);
+        $request->handle($language);
 
         return redirect()
             ->route('admin.languages.index')
-            ->with('alert-success', __('admin.row_updated', ['id' => $language->id]));
+            ->with('alert-success', __('admin.row_updated', ['id' => $language->getId()]));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Language $language): RedirectResponse
+    public function destroy(Language $language, LanguagesRepository $languagesRepository): RedirectResponse
     {
         if (!Auth::user()?->can('delete', $language)) {
             return redirect()->route('admin.home');
         }
-        $language->delete();
-        \Cache::tags([Language::CACHE_TAG, Construction::CACHE_TAG])->flush();
+
+        $languagesRepository->delete($language);
 
         return redirect()
             ->route('admin.languages.index')
-            ->with('alert-success', __('admin.row_deleted', ['id' => $language->id]));
+            ->with('alert-success', __('admin.row_deleted', ['id' => $language->getId()]));
     }
 }

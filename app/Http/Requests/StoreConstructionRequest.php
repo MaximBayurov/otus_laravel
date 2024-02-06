@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Construction;
-use App\Models\Language;
-use App\Services\LanguageService;
+use App;
+use Domain\ModuleLanguageConstructions\Models\Construction;
+use Domain\ModuleLanguageConstructions\Repositories\ConstructionLanguageRepository;
+use Domain\ModuleLanguageConstructions\Repositories\ConstructionsRepository;
+use Domain\ModuleLanguageConstructions\Services\ConstructionImplementationsService;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 class StoreConstructionRequest extends FormRequest
 {
@@ -20,7 +23,7 @@ class StoreConstructionRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
@@ -39,32 +42,33 @@ class StoreConstructionRequest extends FormRequest
     protected function prepareForValidation()
     {
         /**
-         * @var $languageService LanguageService
+         * @var $implementationsService ConstructionImplementationsService
          */
-        $languageService = \App::get(LanguageService::class);
+        $implementationsService = App::get(ConstructionImplementationsService::class);
 
         $this->merge([
-            "languages" => $languageService->filterEmpty($this->get('languages') ?? []),
+            "languages" => $implementationsService->filterEmpty($this->get('languages') ?? []),
         ]);
     }
 
     /**
      * Обработка запроса на создание языковой конструкции
-     * @return \App\Models\Construction
+     *
+     * @return Construction
      */
     public function handle(): Construction
     {
-        $construction = Construction::create($this->only(['title', 'slug', 'description']));
-        if ($this->has('languages')) {
-            foreach ($this->get('languages') as $language) {
-                $construction->languages()->attach($language['id'], [
-                    'code' => $language['code']
-                ]);
-            }
-            \Cache::tags([Language::CACHE_TAG])->flush();
-        }
+        /**
+         * @var ConstructionsRepository $constructionsRepository
+         */
+        $constructionsRepository = App::get(ConstructionsRepository::class);
+        $construction = $constructionsRepository->add($this->only(['title', 'slug', 'description']));
 
-        \Cache::tags([Construction::CACHE_TAG])->flush();
+        /**
+         * @var ConstructionLanguageRepository $implementationsRepository
+         */
+        $implementationsRepository = App::get(ConstructionLanguageRepository::class);
+        $implementationsRepository->addForConstruction($construction, $this->get('languages', []));
 
         return $construction;
     }

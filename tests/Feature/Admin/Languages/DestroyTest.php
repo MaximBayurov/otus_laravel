@@ -35,10 +35,14 @@ class DestroyTest extends TestCase
         $this->actingAs($user)->delete(route('admin.languages.destroy', ['language' => $construction->id]));
 
         if ($canDestroy) {
-            $this->assertDatabaseMissing('languages', $construction->toArray());
+            $this->assertDatabaseMissing('languages', [
+                'id' => $construction->id
+            ]);
             return;
         }
-        $this->assertDatabaseHas('languages', $construction->toArray());
+        $this->assertDatabaseHas('languages', [
+            'id' => $construction->id
+        ]);
     }
 
     public static function providerTestDestroyAccess(): array

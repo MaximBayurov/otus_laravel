@@ -9,7 +9,6 @@ use Attribute;
 class CachedMethod
 {
     public function __construct(
-        public string $key,
         public CachedMethodTypesEnum $type = CachedMethodTypesEnum::SIMPLE,
         public ?string $model = null
     ) {

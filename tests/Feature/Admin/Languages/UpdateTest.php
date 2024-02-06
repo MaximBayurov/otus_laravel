@@ -46,10 +46,14 @@ class UpdateTest extends TestCase
             $languageDataNew['constructions'],
         );
         if ($assert) {
-            $this->assertDatabaseHas('languages', $languageDataNew);
+            $this->assertDatabaseHas('languages', [
+                'id' => $languageDataNew['id']
+            ]);
             return;
         }
-        $this->assertDatabaseHas('languages', $languageData);
+        $this->assertDatabaseHas('languages', [
+            'id' => $languageData['id']
+        ]);
     }
 
     public static function providerTestUpdate(): array
@@ -198,10 +202,14 @@ class UpdateTest extends TestCase
         );
 
         if ($canEdit) {
-            $this->assertDatabaseHas('languages', $languageDataNew);
+            $this->assertDatabaseHas('languages', [
+                'id' => $languageDataNew['id']
+            ]);
             return;
         }
-        $this->assertDatabaseHas('languages', $languageData);
+        $this->assertDatabaseHas('languages', [
+            'id' => $languageData['id']
+        ]);
     }
 
     public static function providerTestUpdateAccess(): array

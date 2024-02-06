@@ -4,30 +4,33 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreConstructionRequest;
 use App\Http\Requests\UpdateConstructionRequest;
-use App\Models\Construction;
-use App\Services\CacheHelper;
-use App\Services\ConstructionService;
-use App\Services\LanguageService;
+use Domain\ModuleLanguageConstructions\Models\Construction;
 use Auth;
-use Cache;
+use Domain\ModuleLanguageConstructions\Repositories\ConstructionsRepository;
+use Domain\ModuleLanguageConstructions\Repositories\LanguagesRepository;
+use Domain\ModuleLanguageConstructions\Services\ConstructionImplementationsService;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class ConstructionsController extends Controller
 {
     /**
      * Display a listing of the resource.
+     * @throws NotFoundExceptionInterface|ContainerExceptionInterface
      */
-    public function index(ConstructionService $constructionService): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
-    {
+    public function index(
+        ConstructionsRepository $constructionsRepository
+    ): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application {
         if (!Auth::user()?->can('viewAny', Construction::class)) {
             return redirect()->route('admin.home');
         }
 
-        $page = (int)request()->get($constructionService::PAGE_NAME, 1);
-        $constructions = $constructionService->getPagination($page);
+        $page = (int) request()->get($constructionsRepository::PAGE_NAME, 1);
+        $constructions = $constructionsRepository->getPagination($page);
 
         if ($constructions->count() === 0 && $constructions->hasPages()) {
             return redirect(route('admin.constructions.index'));
@@ -39,14 +42,16 @@ class ConstructionsController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(LanguageService $languageService): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
-    {
+    public function create(
+        ConstructionImplementationsService $implementationsService,
+        LanguagesRepository $languagesRepository
+    ): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application {
         if (!Auth::user()?->can('create', Construction::class)) {
             return redirect()->route('admin.home');
         }
 
-        $languageOptions = $languageService->getLanguageOptions();
-        $languages = $languageService->filterEmpty(old('languages') ?? []);
+        $languageOptions = $languagesRepository->getOptions();
+        $languages = $implementationsService->filterEmpty(old('languages') ?? []);
 
         return view('pages.admin.constructions.create', compact('languageOptions', 'languages'));
     }
@@ -72,40 +77,49 @@ class ConstructionsController extends Controller
      */
     public function show(
         Construction $construction,
-        LanguageService $languageService
-    ): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
-    {
+        ConstructionImplementationsService $implementationsService,
+        LanguagesRepository $languagesRepository
+    ): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application {
         if (!Auth::user()?->can('viewAny', Construction::class)) {
             return redirect()->route('admin.home');
         }
 
-        $languageOptions = $languageService->getLanguageOptions();
-        $languages = $languageService->getLanguagesFormatted($construction);
+        $languageOptions = $languagesRepository->getOptions();
+        $languages = $implementationsService->getFormattedForConstruction($construction, old('languages', []));
 
-        return view('pages.admin.constructions.show', compact(
-            'construction',
-            'languages',
-            'languageOptions'
-        ));
+        return view(
+            'pages.admin.constructions.show',
+            compact(
+                'construction',
+                'languages',
+                'languageOptions'
+            )
+        );
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Construction $construction, LanguageService $languageService): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application
-    {
+    public function edit(
+        Construction $construction,
+        ConstructionImplementationsService $implementationsService,
+        LanguagesRepository $languagesRepository
+    ): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application {
         if (!Auth::user()?->can('update', $construction)) {
             return redirect()->route('admin.home');
         }
 
-        $languageOptions = $languageService->getLanguageOptions();
-        $languages = $languageService->getLanguagesFormatted($construction);
+        $languageOptions = $languagesRepository->getOptions();
+        $languages = $implementationsService->getFormattedForConstruction($construction, old('languages', []));
 
-        return view('pages.admin.constructions.edit', compact(
-            'construction',
-            'languages',
-            'languageOptions'
-        ));
+        return view(
+            'pages.admin.constructions.edit',
+            compact(
+                'construction',
+                'languages',
+                'languageOptions'
+            )
+        );
     }
 
     /**
@@ -121,23 +135,22 @@ class ConstructionsController extends Controller
 
         return redirect()
             ->route('admin.constructions.index')
-            ->with('alert-success', __('admin.row_updated', ['id' => $construction->id]));
+            ->with('alert-success', __('admin.row_updated', ['id' => $construction->getId()]));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Construction $construction): RedirectResponse
+    public function destroy(Construction $construction, ConstructionsRepository $constructionsRepository): RedirectResponse
     {
         if (!Auth::user()->can('delete', $construction)) {
             return redirect()->route('admin.home');
         }
-        $construction->delete();
-        Cache::tags([Construction::CACHE_TAG, Construction::CACHE_TAG])->flush();
+
+        $constructionsRepository->delete($construction);
 
         return redirect()
             ->route('admin.constructions.index')
-            ->with('alert-success', __('admin.row_deleted', ['id' => $construction->id]));
-
+            ->with('alert-success', __('admin.row_deleted', ['id' => $construction->getId()]));
     }
 }
