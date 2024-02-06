@@ -35,10 +35,9 @@ class UpdateTest extends TestCase
         $user = User::factory()->create()->assignRole(RolesEnum::ADMIN);
 
         $languageData = $createLanguage();
-        $languageDataNew = array_merge(
-            $languageData,
-            Language::factory()->make()->toArray()
-        );
+        $languageDataNew = $languageData;
+        $languageDataNew['description'] = $languageDataNew['description'] . 'desc-new';
+
         $this->actingAs($user)->patch(route('admin.languages.update', ['language' => $languageData['id']]), $languageDataNew);
 
         unset(
@@ -47,12 +46,14 @@ class UpdateTest extends TestCase
         );
         if ($assert) {
             $this->assertDatabaseHas('languages', [
-                'id' => $languageDataNew['id']
+                'id' => $languageDataNew['id'],
+                'description' => $languageDataNew['description'],
             ]);
             return;
         }
         $this->assertDatabaseHas('languages', [
-            'id' => $languageData['id']
+            'id' => $languageData['id'],
+            'description' => $languageData['description'],
         ]);
     }
 
@@ -192,10 +193,9 @@ class UpdateTest extends TestCase
         $user = User::factory()->create()->assignRole($role);
 
         $languageData = Language::factory()->create()->toArray();
-        $languageDataNew = array_merge(
-            $languageData,
-            Language::factory()->make()->toArray()
-        );
+        $languageDataNew = $languageData;
+        $languageDataNew['description'] = $languageDataNew['description'] . 'desc-new';
+
         $this->actingAs($user)->patch(
             route('admin.languages.update', ['language' => $languageData['id']]),
             $languageDataNew
@@ -203,12 +203,14 @@ class UpdateTest extends TestCase
 
         if ($canEdit) {
             $this->assertDatabaseHas('languages', [
-                'id' => $languageDataNew['id']
+                'id' => $languageDataNew['id'],
+                'description' => $languageDataNew['description'],
             ]);
             return;
         }
         $this->assertDatabaseHas('languages', [
-            'id' => $languageData['id']
+            'id' => $languageData['id'],
+            'description' => $languageData['description'],
         ]);
     }
 

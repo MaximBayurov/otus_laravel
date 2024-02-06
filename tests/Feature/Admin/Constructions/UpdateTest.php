@@ -35,10 +35,9 @@ class UpdateTest extends TestCase
         $user = User::factory()->create()->assignRole(RolesEnum::ADMIN);
 
         $constructionData = $createConstruction();
-        $constructionDataNew = array_merge(
-            $constructionData,
-            Construction::factory()->make()->toArray()
-        );
+        $constructionDataNew = $constructionData;
+        $constructionDataNew['description'] = $constructionDataNew['description'] . 'new-desc';
+
         $this->actingAs($user)->patch(route('admin.constructions.update', ['construction' => $constructionData['id']]), $constructionDataNew);
 
         unset(
@@ -47,12 +46,14 @@ class UpdateTest extends TestCase
         );
         if ($assert) {
             $this->assertDatabaseHas('constructions', [
-                'id' => $constructionDataNew['id']
+                'id' => $constructionDataNew['id'],
+                'description' => $constructionDataNew['description']
             ]);
             return;
         }
         $this->assertDatabaseHas('constructions', [
-            'id' => $constructionData['id']
+            'id' => $constructionData['id'],
+            'description' => $constructionData['description'],
         ]);
     }
 
@@ -192,10 +193,8 @@ class UpdateTest extends TestCase
         $user = User::factory()->create()->assignRole($role);
 
         $constructionData = Construction::factory()->create()->toArray();
-        $constructionDataNew = array_merge(
-            $constructionData,
-            Construction::factory()->make()->toArray()
-        );
+        $constructionDataNew = $constructionData;
+        $constructionDataNew['description'] = $constructionData['description'] . 'new-desc';
         $this->actingAs($user)->patch(
             route('admin.constructions.update', ['construction' => $constructionData['id']]),
             $constructionDataNew
@@ -203,12 +202,14 @@ class UpdateTest extends TestCase
 
         if ($canEdit) {
             $this->assertDatabaseHas('constructions', [
-                'id' => $constructionDataNew['id']
+                'id' => $constructionDataNew['id'],
+                'description' => $constructionDataNew['description'],
             ]);
             return;
         }
         $this->assertDatabaseHas('constructions', [
-            'id' => $constructionData['id']
+            'id' => $constructionData['id'],
+            'description' => $constructionData['description'],
         ]);
     }
 
