@@ -29,7 +29,7 @@ class LanguageController extends Controller
             return redirect()->route('admin.home');
         }
 
-        $page = (int) request()->get($languagesRepository::PAGE_NAME, 1);
+        $page = (int) request()->get(config('pagination.languages_page_name'), 1);
         $languages = $languagesRepository->getPagination($page);
 
         if ($languages->hasPages() && $languages->count() === 0) {

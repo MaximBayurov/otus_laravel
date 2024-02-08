@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Enums\Permissions\Admin;
 use App\Models\User;
+use App\Services\CacheHelper;
 use Gate;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,7 +16,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(CacheHelper::class, function (Application $app) {
+            return new CacheHelper();
+        });
     }
 
     /**

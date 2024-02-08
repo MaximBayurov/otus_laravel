@@ -29,7 +29,7 @@ class ConstructionsController extends Controller
             return redirect()->route('admin.home');
         }
 
-        $page = (int) request()->get($constructionsRepository::PAGE_NAME, 1);
+        $page = (int) request()->get(config('pagination.constructions_page_name'), 1);
         $constructions = $constructionsRepository->getPagination($page);
 
         if ($constructions->count() === 0 && $constructions->hasPages()) {

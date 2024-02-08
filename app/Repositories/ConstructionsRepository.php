@@ -10,12 +10,10 @@ use Domain\ModuleLanguageConstructions\Models\Construction;
 use Domain\ModuleLanguageConstructions\Models\Language;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class ConstructionsRepository implements \Domain\ModuleLanguageConstructions\Repositories\ConstructionsRepository
+readonly class ConstructionsRepository implements \Domain\ModuleLanguageConstructions\Repositories\ConstructionsRepository
 {
-    const PAGE_NAME = "constructions-page";
-
     public function __construct(
-        private readonly CacheHelper $cacheHelper
+        private CacheHelper $cacheHelper
     ) {
     }
 
@@ -48,7 +46,7 @@ class ConstructionsRepository implements \Domain\ModuleLanguageConstructions\Rep
             $this->cacheHelper->makeKey([__METHOD__, $page]),
             function () use ($page) {
                 /** @noinspection PhpUndefinedMethodInspection */
-                return Construction::paginate(10, pageName: self::PAGE_NAME, page: $page);
+                return Construction::paginate(10, pageName: config('pagination.constructions_page_name'), page: $page);
             }
         );
     }

@@ -11,12 +11,10 @@ use Domain\ModuleLanguageConstructions\Models\Language;
 use Domain\ModuleLanguageConstructions\Repositories\LanguagesRepository as ILanguagesRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class LanguagesRepository implements ILanguagesRepository
+readonly class LanguagesRepository implements ILanguagesRepository
 {
-    const PAGE_NAME = 'languages-page';
-
     public function __construct(
-        private readonly CacheHelper $cacheHelper
+        private CacheHelper $cacheHelper
     ) {
     }
 
@@ -56,7 +54,7 @@ class LanguagesRepository implements ILanguagesRepository
             $this->cacheHelper->makeKey([__METHOD__, $page]),
             function () use ($page) {
                 /** @noinspection PhpUndefinedMethodInspection */
-                return Language::paginate(10, pageName: self::PAGE_NAME, page:$page);
+                return Language::paginate(10, pageName: config('pagination.languages_page_name'), page:$page);
             }
         );
     }

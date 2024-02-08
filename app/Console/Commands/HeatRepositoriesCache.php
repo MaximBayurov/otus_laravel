@@ -10,7 +10,6 @@ use App\Events\CacheHelper\BeforeModelMethodHeat;
 use App\Events\CacheHelper\BeforePaginationMethodHeat;
 use App\Events\CacheHelper\BeforeSimpleMethodHeat;
 use App\Services\CacheHelper;
-use Cache;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Event;
 use ReflectionMethod;
