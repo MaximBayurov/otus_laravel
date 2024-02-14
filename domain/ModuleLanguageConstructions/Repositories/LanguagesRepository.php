@@ -19,4 +19,6 @@ interface LanguagesRepository
     public function update(Language $language, array $fields): void;
 
     public function delete(Language $language): void;
+
+    public function getBySlug(string $slug): ?Language;
 }

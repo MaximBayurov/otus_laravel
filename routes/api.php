@@ -1,8 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,6 +11,24 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
+use App\Http\Controllers\Api\V1\LanguageController;
+use App\Http\Controllers\Auth\JwtAuthController;
+use Illuminate\Routing\Router;
+
+Route::prefix('/auth')
+    ->name('auth.')
+    ->group(function ($router) {
+        Route::post('login', [JwtAuthController::class, 'login'])->name('login');
+        Route::post('logout', [JwtAuthController::class, 'logout'])->name('logout');
+        Route::post('refresh', [JwtAuthController::class, 'refresh'])->name('refresh');
+        Route::post('me', [JwtAuthController::class, 'me'])->name('me');
+    });
+
+
+function getV1Routes(Router $router) {
+    $router->apiResource('/languages', LanguageController::class);
+}
+
+Route::prefix('/v1')
+    ->name('v1.')
+    ->group(getV1Routes(...));

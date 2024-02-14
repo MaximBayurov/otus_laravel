@@ -171,6 +171,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\ConstructionLanguageProvider::class,
+        \PHPOpenSourceSaver\JWTAuth\Providers\LaravelServiceProvider::class,
     ])->toArray(),
 
     /*

@@ -13,27 +13,27 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
+use Illuminate\Http\Request;
 
 class LanguageController extends Controller
 {
     /**
      * Display a listing of the resource.
-     * @throws ContainerExceptionInterface|NotFoundExceptionInterface
      */
     public function index(
+        Request $request,
         LanguagesRepository $languagesRepository
     ): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application {
         if (!Auth::user()?->can('viewAny', Language::class)) {
             return redirect()->route('admin.home');
         }
 
-        $page = (int) request()->get(config('pagination.languages_page_name'), 1);
+        $page = (int) $request->get(config('pagination.languages_page_name'), 1);
         $languages = $languagesRepository->getPagination($page);
+        $languages->withPath($request->url());
 
         if ($languages->hasPages() && $languages->count() === 0) {
-            return redirect(route('admin.languages.index'));
+            return redirect(route($request->route()->getName()));
         }
 
         return view('pages.admin.languages.index', compact('languages'));

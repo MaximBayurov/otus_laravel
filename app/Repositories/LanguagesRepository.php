@@ -21,6 +21,7 @@ readonly class LanguagesRepository implements ILanguagesRepository
     #[CachedMethod]
     /**
      * Возвращает отформатированные опции для select с языками
+     *
      * @return array
      */
     public function getOptions(): array
@@ -35,6 +36,7 @@ readonly class LanguagesRepository implements ILanguagesRepository
                         'title' => $language->title,
                     ];
                 }
+
                 return $result;
             }
         );
@@ -54,9 +56,21 @@ readonly class LanguagesRepository implements ILanguagesRepository
             $this->cacheHelper->makeKey([__METHOD__, $page]),
             function () use ($page) {
                 /** @noinspection PhpUndefinedMethodInspection */
-                return Language::paginate(10, pageName: config('pagination.languages_page_name'), page:$page);
+                return Language::paginate(10, pageName: config('pagination.languages_page_name'), page: $page);
             }
         );
+    }
+
+    /**
+     * Возвращает язык программирования по коду
+     *
+     * @param string $slug
+     *
+     * @return Language|null
+     */
+    public function getBySlug(string $slug): ?Language
+    {
+        return Language::firstWhere('slug', $slug);
     }
 
     public function add(array $language): Language
