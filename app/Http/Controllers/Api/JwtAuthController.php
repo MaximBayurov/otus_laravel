@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use Illuminate\Http\JsonResponse;
 
 class JwtAuthController extends Controller
 {
@@ -27,7 +28,7 @@ class JwtAuthController extends Controller
         $credentials = request(['email', 'password']);
 
         if (! $token = auth('api')->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
         return $this->respondWithToken($token);
@@ -36,11 +37,11 @@ class JwtAuthController extends Controller
     /**
      * Get the authenticated User.
      *
-     * @return JsonResponse
+     * @return \App\Http\Resources\UserResource
      */
-    public function me(): JsonResponse
+    public function me(): UserResource
     {
-        return response()->json(auth('api')->user());
+        return new UserResource(auth('api')->user());
     }
 
     /**

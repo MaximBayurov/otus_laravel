@@ -70,7 +70,7 @@ readonly class LanguagesRepository implements ILanguagesRepository
      */
     public function getBySlug(string $slug): ?Language
     {
-        return Language::firstWhere('slug', $slug);
+        return Language::firstWhere('slug', '=', $slug);
     }
 
     public function add(array $language): Language

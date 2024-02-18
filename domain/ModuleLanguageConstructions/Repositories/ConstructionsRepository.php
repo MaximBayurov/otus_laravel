@@ -19,4 +19,6 @@ interface ConstructionsRepository
     public function update(Construction $construction, array $fields): void;
 
     public function delete(Construction $construction): void;
+
+    public function getBySlug(string $slug): ?Construction;
 }

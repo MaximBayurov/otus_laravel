@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Constructions;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class LanguagesCollectionResource extends ResourceCollection
+class CollectionResource extends ResourceCollection
 {
     /**
      * The resource that this resource collects.
      *
      * @var string
      */
-    public $collects = LanguageResource::class;
+    public $collects = ItemResource::class;
 
     /**
      * Transform the resource collection into an array.

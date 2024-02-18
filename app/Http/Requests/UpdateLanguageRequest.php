@@ -27,12 +27,18 @@ class UpdateLanguageRequest extends FormRequest
      */
     public function rules(): array
     {
+        $language = $this->route('language');
+        if (!is_a($language, Language::class)) {
+            $languageRepository = app()->get(LanguagesRepository::class);
+            $language = $languageRepository->getBySlug($language);
+        }
+
         return [
             'id' => 'required',
             'slug' => [
                 'required',
                 'max:255',
-                Rule::unique('languages')->ignore($this->get('id')),
+                Rule::unique('languages')->ignore($language->id),
             ],
             'title' => ['required', 'max:255'],
             'description' => ['max:65535'],

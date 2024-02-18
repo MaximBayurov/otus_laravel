@@ -51,6 +51,11 @@ readonly class ConstructionsRepository implements \Domain\ModuleLanguageConstruc
         );
     }
 
+    public function getBySlug(string $slug): ?Construction
+    {
+        return Construction::firstWhere('slug', '=', $slug);
+    }
+
     public function add(array $construction): Construction
     {
         /** @noinspection PhpUndefinedMethodInspection */

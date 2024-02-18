@@ -11,8 +11,9 @@
 |
 */
 
-use App\Http\Controllers\Api\V1\LanguageController;
-use App\Http\Controllers\Auth\JwtAuthController;
+use App\Http\Controllers\Api\JwtAuthController;
+use App\Http\Controllers\Api\V1;
+use App\Http\Controllers\Api\V2;
 use Illuminate\Routing\Router;
 
 Route::prefix('/auth')
@@ -26,9 +27,18 @@ Route::prefix('/auth')
 
 
 function getV1Routes(Router $router) {
-    $router->apiResource('/languages', LanguageController::class);
+    $router->apiResource('/languages', V1\LanguageController::class);
+    $router->apiResource('/constructions', V1\ConstructionController::class);
+}
+function getV2Routes(Router $router) {
+    getV1Routes($router);
+    $router->get('/languages/{language}', V2\ShowLanguageController::class);
 }
 
 Route::prefix('/v1')
     ->name('v1.')
     ->group(getV1Routes(...));
+
+Route::prefix('/v2')
+    ->name('v2.')
+    ->group(getV2Routes(...));

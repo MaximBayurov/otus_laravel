@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLanguageRequest;
 use App\Http\Requests\UpdateLanguageRequest;
-use App\Http\Resources\ConstructionsCollectionResource;
-use App\Http\Resources\LanguageResource;
-use App\Http\Resources\LanguagesCollectionResource;
+use App\Http\Resources\Constructions;
+use App\Http\Resources\Languages;
 use Domain\ModuleLanguageConstructions\Models\Language;
 use Domain\ModuleLanguageConstructions\Repositories\LanguagesRepository;
 use Illuminate\Foundation\Application;
@@ -24,7 +23,7 @@ class LanguageController extends Controller
     public function index(
         Request $request,
         LanguagesRepository $languagesRepository
-    ): Application|LanguagesCollectionResource|Redirector|RedirectResponse|\Illuminate\Contracts\Foundation\Application {
+    ): Application|Languages\CollectionResource|Redirector|RedirectResponse|\Illuminate\Contracts\Foundation\Application {
         $page = (int) $request->get(config('pagination.languages_page_name'), 1);
         $languages = $languagesRepository->getPagination($page);
         $languages->withPath($request->url());
@@ -33,7 +32,7 @@ class LanguageController extends Controller
             return redirect(route($request->route()->getName()));
         }
 
-        return new LanguagesCollectionResource($languages);
+        return new Languages\CollectionResource($languages);
     }
 
     /**
@@ -66,8 +65,8 @@ class LanguageController extends Controller
         }
 
         return response()->json([
-            'language' => new LanguageResource($language),
-            'constructions' => new ConstructionsCollectionResource($language->constructions),
+            'language' => new Languages\ItemResource($language),
+            'constructions' => new Constructions\CollectionResource($language->constructions),
         ]);
     }
 

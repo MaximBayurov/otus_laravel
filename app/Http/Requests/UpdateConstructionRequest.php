@@ -24,15 +24,23 @@ class UpdateConstructionRequest extends FormRequest
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function rules(): array
     {
+        $construction = $this->route('construction');
+        if (!is_a($construction, Construction::class)) {
+            $languageRepository = app()->get(ConstructionsRepository::class);
+            $construction = $languageRepository->getBySlug($construction);
+        }
+
         return [
             'id' => 'required',
             'slug' => [
                 'required',
                 'max:255',
-                Rule::unique('constructions')->ignore($this->get('id')),
+                Rule::unique('constructions')->ignore($construction->id),
             ],
             'title' => ['required', 'max:255'],
             'description' => ['max:65535'],
