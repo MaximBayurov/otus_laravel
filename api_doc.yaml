@@ -95,11 +95,6 @@ paths:
       summary: 'Запрос на обновление токена'
       description: Обновляет токен пользователя
       operationId: 'auth_refresh'
-      requestBody:
-        content:
-          'application/json':
-            schema:
-              $ref: '#/components/schemas/AuthData'
       responses:
         200:
           description: Успешное обновление токена

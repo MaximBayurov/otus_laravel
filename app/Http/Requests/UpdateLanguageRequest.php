@@ -33,13 +33,19 @@ class UpdateLanguageRequest extends FormRequest
             $language = $languageRepository->getBySlug($language);
         }
 
+        $slug = [
+            'required',
+            'max:255',
+        ];
+        $slug[] = !empty($language)
+            ? Rule::unique('languages')->ignore($language->id)
+            : Rule::unique(
+                'languages'
+            );
+
         return [
             'id' => 'required',
-            'slug' => [
-                'required',
-                'max:255',
-                Rule::unique('languages')->ignore($language->id),
-            ],
+            'slug' => $slug,
             'title' => ['required', 'max:255'],
             'description' => ['max:65535'],
             'constructions.*.id' => ['sometimes', 'required', 'exists:App\Models\Construction,id'],

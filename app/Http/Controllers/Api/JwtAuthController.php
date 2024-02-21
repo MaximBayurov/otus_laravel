@@ -28,7 +28,7 @@ class JwtAuthController extends Controller
         $credentials = request(['email', 'password']);
 
         if (! $token = auth('api')->attempt($credentials)) {
-            return response()->json(['message' => 'Unauthenticated'], 401);
+            return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
         return $this->respondWithToken($token);

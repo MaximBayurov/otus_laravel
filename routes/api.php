@@ -26,13 +26,19 @@ Route::prefix('/auth')
     });
 
 
-function getV1Routes(Router $router) {
-    $router->apiResource('/languages', V1\LanguageController::class);
-    $router->apiResource('/constructions', V1\ConstructionController::class);
+if (!function_exists('getV1Routes')) {
+    function getV1Routes(Router $router) {
+        $router->apiResource('/languages', V1\LanguageController::class);
+        $router->apiResource('/constructions', V1\ConstructionController::class);
+    }
 }
-function getV2Routes(Router $router) {
-    getV1Routes($router);
-    $router->get('/languages/{language}', V2\ShowLanguageController::class);
+
+if (!function_exists('getV2Routes')) {
+    function getV2Routes(Router $router)
+    {
+        getV1Routes($router);
+        $router->get('/languages/{language}', V2\ShowLanguageController::class)->name('languages.show');
+    }
 }
 
 Route::prefix('/v1')

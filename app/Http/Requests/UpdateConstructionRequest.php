@@ -35,13 +35,19 @@ class UpdateConstructionRequest extends FormRequest
             $construction = $languageRepository->getBySlug($construction);
         }
 
+        $slug = [
+            'required',
+            'max:255',
+        ];
+        $slug[] = !empty($construction)
+            ? Rule::unique('constructions')->ignore($construction->id)
+            : Rule::unique(
+                'constructions'
+            );
+
         return [
             'id' => 'required',
-            'slug' => [
-                'required',
-                'max:255',
-                Rule::unique('constructions')->ignore($construction->id),
-            ],
+            'slug' => $slug,
             'title' => ['required', 'max:255'],
             'description' => ['max:65535'],
             'languages.*.id' => ['sometimes', 'required', 'exists:App\Models\Language,id'],
