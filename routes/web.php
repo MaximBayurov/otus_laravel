@@ -116,6 +116,6 @@ Route::get('/log', function () {
     $request = request();
     Log::debug('Test message', compact('request'));
     return 'ok';
-});
+})->name('log');
 
 require __DIR__.'/auth.php';
