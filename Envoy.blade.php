@@ -2,7 +2,7 @@
 
 @story('deploy')
     update-code
-    update-dependencies
+    install-dependencies
     run-migrations
     run-tests
 @endstory
@@ -11,7 +11,7 @@
     if ($task === 'run-tests') {
         rollback-migrations
         rollback-code
-        update-dependencies
+        install-dependencies
     }
 @enderror
 
@@ -25,9 +25,9 @@
     git pull origin-with-creds master -r
 @endtask
 
-@task('update-dependencies')
+@task('install-dependencies')
     cd {{ $projectRoot }}
-    ./vendor/bin/sail composer update -W
+    ./vendor/bin/sail composer install
 @endtask
 
 @task('run-migrations')
