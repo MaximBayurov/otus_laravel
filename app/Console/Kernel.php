@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         $schedule
             ->command(HeatRepositoriesCache::class, ['-A', '-C', '--quiet'])
             ->onOneServer()
+            ->weekly()
             ->at('00:00')
             ->timezone('Europe/Moscow');
     }
