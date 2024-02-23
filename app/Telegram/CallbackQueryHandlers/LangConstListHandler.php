@@ -79,7 +79,7 @@ class LangConstListHandler extends CallbackQueryHandler
             ->setOneTimeKeyboard(true)
             ->setSelective(false);
 
-        $r = Request::editMessageText([
+        return Request::editMessageText([
             'chat_id' => $this->query->getMessage()->getChat()->getId(),
             'message_id' => $this->query->getMessage()->getMessageId(),
             'text' => $this->escapeForMarkdown(
@@ -92,7 +92,5 @@ class LangConstListHandler extends CallbackQueryHandler
             'parse_mode' => 'MarkdownV2',
             'protect_content' => true,
         ]);
-        Log::info('test', ['r' => $r, 'k' => $keyboard]);
-        return $r;
     }
 }
