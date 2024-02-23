@@ -39,7 +39,9 @@ class ConstructionsHandler extends CallbackQueryHandler
                 'callback_data' => self::getIdentifier() . " " . $paginationPage,
             ];
         }
-        $buttons[] = $paginationButtons;
+        if (!empty($paginationButtons)) {
+            $buttons[] = $paginationButtons;
+        }
 
         $keyboard = new InlineKeyboard(...$buttons);
         $keyboard

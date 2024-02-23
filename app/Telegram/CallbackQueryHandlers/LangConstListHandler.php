@@ -6,6 +6,7 @@ use App\Enums\PageSizesEnum;
 use App\Repositories\LanguagesRepository;
 use App\Telegram\CallbackQueryHandler;
 use Domain\ModuleLanguageConstructions\Models\Construction;
+use Illuminate\Support\Facades\Log;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Entities\ServerResponse;
 use Longman\TelegramBot\Request;
@@ -62,7 +63,9 @@ class LangConstListHandler extends CallbackQueryHandler
                 'callback_data' => self::getIdentifier() . " " . $slug . " " . $paginationPage,
             ];
         }
-        $buttons[] = $paginationButtons;
+        if (!empty($paginationButtons)) {
+            $buttons[] = $paginationButtons;
+        }
         $buttons[] = [
             [
                 'text' => "К языку программирования",
@@ -76,7 +79,7 @@ class LangConstListHandler extends CallbackQueryHandler
             ->setOneTimeKeyboard(true)
             ->setSelective(false);
 
-        return Request::editMessageText([
+        $r = Request::editMessageText([
             'chat_id' => $this->query->getMessage()->getChat()->getId(),
             'message_id' => $this->query->getMessage()->getMessageId(),
             'text' => $this->escapeForMarkdown(
@@ -89,5 +92,7 @@ class LangConstListHandler extends CallbackQueryHandler
             'parse_mode' => 'MarkdownV2',
             'protect_content' => true,
         ]);
+        Log::info('test', ['r' => $r, 'k' => $keyboard]);
+        return $r;
     }
 }
