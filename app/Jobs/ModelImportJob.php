@@ -12,6 +12,7 @@ use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
@@ -56,6 +57,7 @@ class ModelImportJob implements ShouldQueue, ShouldBeUnique
             'failed' => $this->stats['failed'],
             'created' => $this->stats['created'],
         ]);
+        Cache::tags([$this->model])->flush();
     }
 
     /**

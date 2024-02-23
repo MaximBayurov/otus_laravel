@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Language;
+use Domain\ModuleLanguageConstructions\Models\Language as DomainLanguage;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Cache;
 
 class LanguageSeeder extends Seeder
 {
@@ -17,5 +19,6 @@ class LanguageSeeder extends Seeder
         $factory
             ->count(10)
             ->create();
+        Cache::tags([DomainLanguage::class])->flush();
     }
 }

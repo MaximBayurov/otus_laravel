@@ -18,6 +18,7 @@
 
 namespace App\Telegram\Commands;
 
+use App\Repositories\UsersRepository;
 use App\Services\ITelegramBotService;
 use App\Telegram\WithMarkdownResponse;
 use Longman\TelegramBot\Commands\Command;
@@ -61,7 +62,14 @@ class HelpCommand extends UserCommand
         $commandStr = trim($message->getText(true));
 
         $telegramBot = app()->get(ITelegramBotService::class);
-        $safeToShow = in_array($message->getFrom()->getId(), $telegramBot->getAdmins());
+        $usersRepository = app()->get(UsersRepository::class);
+
+        $safeToShow =
+            !empty($usersRepository->getByTelegramId($message->getChat()->getId()))
+            && in_array(
+                $message->getFrom()->getId(),
+                $telegramBot->getAdmins()
+            );
 
         [$allCommands, $userCommands, $adminCommands] = $this->getUserAndAdminCommands();
 

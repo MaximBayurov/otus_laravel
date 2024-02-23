@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Construction;
-use Database\Factories\ConstructionFactory;
+use Domain\ModuleLanguageConstructions\Models\Construction as DomainConstruction;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Cache;
 
 class ConstructionSeeder extends Seeder
 {
@@ -18,5 +19,6 @@ class ConstructionSeeder extends Seeder
         $factory
             ->count(10)
             ->create();
+        Cache::tags([DomainConstruction::class])->flush();
     }
 }

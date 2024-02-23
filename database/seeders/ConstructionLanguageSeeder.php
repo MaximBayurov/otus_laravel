@@ -4,7 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\Construction;
 use App\Models\Language;
+use Domain\ModuleLanguageConstructions\Models\Construction as DomainConstruction;
+use Domain\ModuleLanguageConstructions\Models\Language as DomainLanguage;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Cache;
 
 class ConstructionLanguageSeeder extends Seeder
 {
@@ -34,5 +37,7 @@ class ConstructionLanguageSeeder extends Seeder
                 ]);
             }
         });
+
+        Cache::tags([DomainLanguage::class, DomainConstruction::class])->flush();
     }
 }

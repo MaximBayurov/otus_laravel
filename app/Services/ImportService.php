@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Construction;
-use App\Models\Language;
+use Domain\ModuleLanguageConstructions\Models\Construction;
+use Domain\ModuleLanguageConstructions\Models\Language;
 use Illuminate\Support\Facades\Auth;
 
 class ImportService
