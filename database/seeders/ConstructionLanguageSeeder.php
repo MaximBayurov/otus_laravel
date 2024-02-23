@@ -36,6 +36,7 @@ class ConstructionLanguageSeeder extends Seeder
                     'code' => fake()->paragraph,
                 ]);
             }
+            $construction->languageImpls()->searchable();
         });
 
         Cache::tags([DomainLanguage::class, DomainConstruction::class])->flush();
