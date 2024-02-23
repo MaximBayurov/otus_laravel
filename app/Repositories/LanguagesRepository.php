@@ -4,11 +4,13 @@ namespace App\Repositories;
 
 use App\Attributes\CachedMethod;
 use App\Enums\CachedMethodTypesEnum;
+use App\Enums\PageSizesEnum;
 use App\Services\CacheHelper;
 use Cache;
 use Domain\ModuleLanguageConstructions\Models\Construction;
 use Domain\ModuleLanguageConstructions\Models\Language;
 use Domain\ModuleLanguageConstructions\Repositories\LanguagesRepository as ILanguagesRepository;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 readonly class LanguagesRepository implements ILanguagesRepository
@@ -50,15 +52,20 @@ readonly class LanguagesRepository implements ILanguagesRepository
      *
      * @return LengthAwarePaginator
      */
-    public function getPagination(int $page): LengthAwarePaginator
+    public function getPagination(int $page, PageSizesEnum $pageSize = PageSizesEnum::SIZE_20): LengthAwarePaginator
     {
         return Cache::tags([Language::class])->rememberForever(
-            $this->cacheHelper->makeKey([__METHOD__, $page]),
-            function () use ($page) {
+            $this->cacheHelper->makeKey([__METHOD__, $page, $pageSize->value]),
+            function () use ($page, $pageSize) {
                 /** @noinspection PhpUndefinedMethodInspection */
-                return Language::paginate(10, pageName: config('pagination.languages_page_name'), page: $page);
+                return Language::paginate($pageSize->value, pageName: config('pagination.languages_page_name'), page: $page);
             }
         );
+    }
+
+    public function getAll(): Collection
+    {
+        return Language::all();
     }
 
     /**
@@ -90,6 +97,7 @@ readonly class LanguagesRepository implements ILanguagesRepository
 
     public function delete(Language $language): void
     {
+        $language->constructionImpls()->unsearchable();
         $language->delete();
         Cache::tags([Construction::class, Language::class])->flush();
     }

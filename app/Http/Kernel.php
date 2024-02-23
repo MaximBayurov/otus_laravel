@@ -5,9 +5,11 @@ namespace App\Http;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\EnsureEmailIsVerified;
+use App\Http\Middleware\HostByNgrok;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\Locale;
+use App\Http\Middleware\TelegramCheckAuth;
 use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\ValidateSignature;
@@ -31,6 +33,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        HostByNgrok::class,
     ];
 
     /**
@@ -49,9 +52,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            //\Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
-            //\Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
 
@@ -75,5 +76,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => EnsureEmailIsVerified::class,
         'locale' => Locale::class,
+        'tg-check-auth' => TelegramCheckAuth::class,
     ];
 }

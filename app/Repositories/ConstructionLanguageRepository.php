@@ -80,18 +80,21 @@ readonly class ConstructionLanguageRepository implements IConstructionLanguageRe
                 'code' => $language['code'],
             ]);
         }
+        $construction->languageImpls()->searchable();
         Cache::tags([Language::class])->flush();
         Cache::tags([Construction::class])->flush();
     }
 
     public function updateForConstruction(Construction $construction, array $languages): void
     {
+        $construction->languageImpls()->unsearchable();
         $construction->languages()->detach();
         foreach ($languages as $language) {
             $construction->languages()->attach($language['id'], [
                 'code' => $language['code'],
             ]);
         }
+        $construction->languageImpls()->searchable();
         Cache::tags([Language::class])->flush();
         Cache::tags([Construction::class])->flush();
     }
@@ -106,18 +109,22 @@ readonly class ConstructionLanguageRepository implements IConstructionLanguageRe
                 'code' => $construction['code'],
             ]);
         }
+        $language->constructionImpls()->searchable();
         Cache::tags([Language::class])->flush();
         Cache::tags([Construction::class])->flush();
     }
 
     public function updateForLanguage(Language $language, array $constructions): void
     {
+        $language->constructionImpls()->unsearchable();
         $language->constructions()->detach();
+
         foreach ($constructions as $construction) {
             $language->constructions()->attach($construction['id'], [
                 'code' => $construction['code'],
             ]);
         }
+        $language->constructionImpls()->searchable();
         Cache::tags([Language::class])->flush();
         Cache::tags([Construction::class])->flush();
     }

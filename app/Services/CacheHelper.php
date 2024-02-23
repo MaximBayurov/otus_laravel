@@ -5,13 +5,15 @@ namespace App\Services;
 use App\Attributes\CachedMethod;
 use App\DTO\CachedMethodData;
 use App\Enums\CachedMethodTypesEnum;
-use App\Events\CacheHelper\CacheCleanedByKey;
+use App\Enums\PageSizesEnum;
 use App\Events\CacheHelper\AfterModelMethodHeat;
 use App\Events\CacheHelper\AfterPaginationMethodHeat;
 use App\Events\CacheHelper\AfterSimpleMethodHeat;
 use App\Events\CacheHelper\BeforeModelMethodHeat;
 use App\Events\CacheHelper\BeforePaginationMethodHeat;
 use App\Events\CacheHelper\BeforeSimpleMethodHeat;
+use App\Events\CacheHelper\CacheCleanedByKey;
+use App\Events\CacheHelper\CacheNotCleanedByKey;
 use App\Models\BaseModel;
 use App\Repositories\ConstructionLanguageRepository;
 use App\Repositories\ConstructionsRepository;
@@ -35,6 +37,7 @@ class CacheHelper
 
     /**
      * Возвращает ключ кэша по переданным параметрам
+     *
      * @param array $params
      *
      * @return string
@@ -46,6 +49,7 @@ class CacheHelper
 
     /**
      * Возвращает список кэшированных методов в репозиториях
+     *
      * @return array<CachedMethodData>
      * @throws \ReflectionException
      */
@@ -61,6 +65,7 @@ class CacheHelper
                 }
             }
         }
+
         return self::$cachedMethodsData;
     }
 
@@ -98,7 +103,9 @@ class CacheHelper
     {
         switch ($methodData->getType()) {
             case CachedMethodTypesEnum::PAGINATION:
-                $this->heatForPaginationMethod($methodData);
+                foreach (PageSizesEnum::cases() as $pageSize) {
+                    $this->heatForPaginationMethod($methodData, $pageSize);
+                }
                 break;
             case CachedMethodTypesEnum::FOR_MODEL:
                 $this->heatForModelMethod($methodData);
@@ -116,14 +123,14 @@ class CacheHelper
      *
      * @return void
      */
-    private function heatForPaginationMethod(CachedMethodData $methodData): void
+    private function heatForPaginationMethod(CachedMethodData $methodData, PageSizesEnum $pageSize): void
     {
         $repo = app($methodData->getMethod()->class);
         $page = 1;
         do {
-            BeforePaginationMethodHeat::dispatch($methodData, $page);
+            BeforePaginationMethodHeat::dispatch($methodData, $page, $pageSize);
             $pagination = call_user_func([$repo, $methodData->getMethod()->name], $page);
-            AfterPaginationMethodHeat::dispatch($methodData, $page);
+            AfterPaginationMethodHeat::dispatch($methodData, $page, $pageSize);
             $page++;
         } while ($pagination->count() > 0);
     }
@@ -163,6 +170,7 @@ class CacheHelper
 
     /**
      * Очищает кэш по ключу
+     *
      * @param array $key
      *
      * @return void

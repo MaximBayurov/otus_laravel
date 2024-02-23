@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TelegramAccountLinkController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -117,5 +118,8 @@ Route::get('/log', function () {
     Log::debug('Test message', compact('request'));
     return 'ok';
 })->name('log');
+
+Route::get('/tg-link-account', TelegramAccountLinkController::class)
+    ->name('tg-link-account');
 
 require __DIR__.'/auth.php';

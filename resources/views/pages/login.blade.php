@@ -46,6 +46,11 @@
                     {!! implode('<br>', $errors->all(':message')) !!}
                 </div>
             @endif
+            @if(session()->has('alert-success'))
+                <div class="alert alert-success">
+                    {{session('alert-success')}}
+                </div>
+            @endif
             <x-forms.input type="email" placeholder="name@example.com" id="floatingInput" name="email"
                            label="{{__('forms.email')}}" :value="old('email')"/>
             <x-forms.input type="password" placeholder="{{__('forms.password-placeholder')}}" id="floatingPassword"

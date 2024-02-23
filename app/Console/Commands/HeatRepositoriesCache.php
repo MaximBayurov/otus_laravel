@@ -187,13 +187,15 @@ class HeatRepositoriesCache extends Command
         Event::listen(function (BeforePaginationMethodHeat $event) {
             $this->cleanCacheByKey([
                 $this->getMethodNameFormatted($event->getMethodData()->getMethod()),
-                $event->getPage()
+                $event->getPage(),
+                $event->getPageSize()->value
             ]);
         });
         Event::listen(function (AfterPaginationMethodHeat $event) {
             $this->info(sprintf(
-                "Прогрет кэш для страницы %s",
-                $event->getPage()
+                "Прогрет кэш для страницы %s (элементов на странице - %s)",
+                $event->getPage(),
+                $event->getPageSize()->value
             ));
         });
         Event::listen(function (BeforeSimpleMethodHeat $event) {

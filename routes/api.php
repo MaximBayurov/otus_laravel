@@ -11,6 +11,7 @@
 |
 */
 
+use App\Http\Controllers\Api\TelegramWebhookController;
 use App\Http\Controllers\Api\JwtAuthController;
 use App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Api\V2;
@@ -25,6 +26,8 @@ Route::prefix('/auth')
         Route::post('me', [JwtAuthController::class, 'me'])->name('me');
     });
 
+
+Route::any('/telegram', TelegramWebhookController::class);
 
 if (!function_exists('getV1Routes')) {
     function getV1Routes(Router $router) {

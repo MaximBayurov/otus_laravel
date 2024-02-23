@@ -202,9 +202,7 @@ class ConstructionsControllerTest extends TestCase
                     'slug',
                     'title',
                     'description',
-                    'codes' => [
-                        '*'
-                    ],
+                    'codes' => [],
                 ]
             ],
         ]);

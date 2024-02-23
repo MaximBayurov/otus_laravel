@@ -3,6 +3,7 @@
 namespace App\Events\CacheHelper;
 
 use App\DTO\CachedMethodData;
+use App\Enums\PageSizesEnum;
 use Illuminate\Foundation\Events\Dispatchable;
 
 class BeforePaginationMethodHeat
@@ -14,7 +15,8 @@ class BeforePaginationMethodHeat
      */
     public function __construct(
         private readonly CachedMethodData $methodData,
-        private readonly int $page
+        private readonly int $page,
+        private readonly PageSizesEnum $pageSize,
     ) {
     }
 
@@ -32,5 +34,10 @@ class BeforePaginationMethodHeat
     public function getPage(): int
     {
         return $this->page;
+    }
+
+    public function getPageSize(): PageSizesEnum
+    {
+        return $this->pageSize;
     }
 }

@@ -64,6 +64,13 @@
         </div>
     </header>
     <main>
+        <div class="container mt-3">
+            @if(session()->has('flash-message'))
+                <div class="alert alert-success">
+                    {!! session('flash-message') !!}
+                </div>
+            @endif
+        </div>
         @yield('content')
     </main>
 

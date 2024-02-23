@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Language extends BaseModel
 {
@@ -30,5 +31,10 @@ class Language extends BaseModel
     public function constructions(): BelongsToMany
     {
         return $this->belongsToMany(Construction::class)->withPivot('code');
+    }
+
+    public function constructionImpls(): HasMany
+    {
+        return $this->hasMany(ConstructionLanguage::class);
     }
 }

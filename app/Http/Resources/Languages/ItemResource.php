@@ -25,6 +25,12 @@ class ItemResource extends JsonResource
                     return $this->additional["codes"];
                 }
             ),
+            "code" => $this->when(
+                empty($this->additional["codes"]) && !empty($this->pivot),
+                function () {
+                    return $this->pivot->code;
+                }
+            ),
         ];
     }
 }
