@@ -46,12 +46,9 @@ class LanguagesControllerTest extends TestCase
     public function test_index(): void
     {
         Language::factory()->createMany(20);
+        $url = route(sprintf("api.%s.languages.index", self::API_VERSION));
 
-        $response = $this->getJson(
-            route(
-                sprintf("api.%s.languages.index", self::API_VERSION),
-            )
-        );
+        $response = $this->getJson($url);
 
         $response->assertStatus(200);
         $response->assertJsonStructure($this->getListStructure());
@@ -62,33 +59,31 @@ class LanguagesControllerTest extends TestCase
      */
     public function test_index_with_redirect(): void
     {
-        $response = $this->getJson(
-            route(
-                sprintf("api.%s.languages.index", self::API_VERSION),
-                [
-                    'languages-page' => 999999999
-                ]
-            )
-        );
+        $params = [
+            'languages-page' => 999999999,
+        ];
+        $url = route(sprintf("api.%s.languages.index", self::API_VERSION), $params);
+
+        $response = $this->getJson($url);
 
         $response->assertRedirect(route(sprintf("api.%s.languages.index", self::API_VERSION)));
     }
 
     public function test_store(): void
     {
+        $url = route(sprintf("api.%s.languages.store", self::API_VERSION));
+
         $response = $this->postJson(
-            route(
-                sprintf("api.%s.languages.store", self::API_VERSION),
-            ),
+            $url,
             $this->makeLanguageWithConstructions(),
             [
-                'Authorization' => 'Bearer asd.asdasdasd'
+                'Authorization' => 'Bearer asd.asdasdasd',
             ]
         );
 
         $response->assertStatus(403);
         $response->assertJsonStructure([
-            'error'
+            'error',
         ]);
     }
 
@@ -106,20 +101,19 @@ class LanguagesControllerTest extends TestCase
         $language = array_filter($this->makeLanguageWithConstructions(), function ($key) use ($field) {
             return $key !== $field;
         }, ARRAY_FILTER_USE_KEY);
+        $url = route(sprintf("api.%s.languages.store", self::API_VERSION));
 
         $response = $this->postJson(
-            route(
-                sprintf("api.%s.languages.store", self::API_VERSION),
-            ),
-            $language,
+            $url,
+            $language
         );
 
         $response->assertStatus(422);
         $response->assertJsonStructure([
             'message',
             'errors' => [
-                $field
-            ]
+                $field,
+            ],
         ]);
     }
 
@@ -129,18 +123,17 @@ class LanguagesControllerTest extends TestCase
         $this->actingAs($admin, JwtAuthControllerTest::API_AUTH_GUARD);
 
         $language = $this->makeLanguageWithConstructions();
+        $url = route(sprintf("api.%s.languages.store", self::API_VERSION));
 
         $response = $this->postJson(
-            route(
-                sprintf("api.%s.languages.store", self::API_VERSION),
-            ),
+            $url,
             $language,
         );
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'success',
-            'slug'
+            'slug',
         ]);
         unset($language['constructions']);
         $this->assertDatabaseHas('languages', $language);
@@ -149,12 +142,12 @@ class LanguagesControllerTest extends TestCase
     public function test_show(): void
     {
         $language = Language::latest()->first();
+        $params = [
+            'language' => $language->slug,
+        ];
+        $url = route(sprintf("api.%s.languages.show", self::API_VERSION), $params);
 
-        $response = $this->getJson(
-            route(sprintf("api.%s.languages.show", self::API_VERSION), [
-                'language' => $language->slug
-            ])
-        );
+        $response = $this->getJson($url);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -171,23 +164,24 @@ class LanguagesControllerTest extends TestCase
                     'title',
                     'description',
                     'code',
-                ]
+                ],
             ],
         ]);
     }
 
     public function test_show_not_found(): void
     {
-        $response = $this->getJson(
-            route(sprintf("api.%s.languages.show", self::API_VERSION), [
-                'group' => 'Y',
-                'language' => 'absolutely_random' . $this->faker->randomNumber(5, true)
-            ])
-        );
+        $params = [
+            'group' => 'Y',
+            'language' => 'absolutely_random' . $this->faker->randomNumber(5, true),
+        ];
+        $url = route(sprintf("api.%s.languages.show", self::API_VERSION), $params);
+
+        $response = $this->getJson($url);
 
         $response->assertStatus(404);
         $response->assertJsonStructure([
-            'error'
+            'error',
         ]);
     }
 
@@ -208,14 +202,13 @@ class LanguagesControllerTest extends TestCase
         $language = array_filter($language, function ($key) use ($field) {
             return $key !== $field;
         }, ARRAY_FILTER_USE_KEY);
+        $params = [
+            'language' => $slug,
+        ];
+        $url = route(sprintf("api.%s.languages.update", self::API_VERSION), $params);
 
         $response = $this->patchJson(
-            route(
-                sprintf("api.%s.languages.update", self::API_VERSION),
-                [
-                    'language' => $slug
-                ]
-            ),
+            $url,
             $language,
         );
 
@@ -223,8 +216,8 @@ class LanguagesControllerTest extends TestCase
         $response->assertJsonStructure([
             'message',
             'errors' => [
-                $field
-            ]
+                $field,
+            ],
         ]);
     }
 
@@ -234,20 +227,19 @@ class LanguagesControllerTest extends TestCase
         $this->actingAs($user, JwtAuthControllerTest::API_AUTH_GUARD);
 
         $language = $this->makeLanguageWithConstructions(true);
+        $params = [
+            'language' => $language['slug'],
+        ];
+        $url = route(sprintf("api.%s.languages.update", self::API_VERSION), $params);
 
         $response = $this->patchJson(
-            route(
-                sprintf("api.%s.languages.update", self::API_VERSION),
-                [
-                    'language' => $language['slug']
-                ]
-            ),
+            $url,
             $language,
         );
 
         $response->assertStatus(403);
         $response->assertJsonStructure([
-            'error'
+            'error',
         ]);
     }
 
@@ -258,20 +250,19 @@ class LanguagesControllerTest extends TestCase
 
         $language = $this->makeLanguageWithConstructions(true);
         $language['slug'] .= $this->faker->randomNumber(5, true);
+        $params = [
+            'language' => $language['slug'],
+        ];
+        $url = route(sprintf("api.%s.languages.update", self::API_VERSION), $params);
 
         $response = $this->patchJson(
-            route(
-                sprintf("api.%s.languages.update", self::API_VERSION),
-                [
-                    'language' => $language['slug'],
-                ]
-            ),
+            $url,
             $language,
         );
 
         $response->assertStatus(404);
         $response->assertJsonStructure([
-            'error'
+            'error',
         ]);
     }
 
@@ -283,21 +274,20 @@ class LanguagesControllerTest extends TestCase
         $languageOld = $this->makeLanguageWithConstructions(true);
         $languageNew = $this->makeLanguageWithConstructions();
         $languageNew['id'] = $languageOld['id'];
+        $params = [
+            'language' => $languageOld['slug'],
+        ];
+        $url = route(sprintf("api.%s.languages.update", self::API_VERSION), $params);
 
         $response = $this->patchJson(
-            route(
-                sprintf("api.%s.languages.update", self::API_VERSION),
-                [
-                    'language' => $languageOld['slug'],
-                ]
-            ),
+            $url,
             $languageNew,
         );
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'success',
-            'slug'
+            'slug',
         ]);
         unset($languageNew['constructions']);
         $this->assertDatabaseHas('languages', $languageNew);
@@ -309,19 +299,16 @@ class LanguagesControllerTest extends TestCase
         $this->actingAs($user, JwtAuthControllerTest::API_AUTH_GUARD);
 
         $language = $this->makeLanguageWithConstructions(true);
+        $params = [
+            'language' => $language['slug'],
+        ];
+        $url = route(sprintf("api.%s.languages.destroy", self::API_VERSION), $params);
 
-        $response = $this->deleteJson(
-            route(
-                sprintf("api.%s.languages.destroy", self::API_VERSION),
-                [
-                    'language' => $language['slug']
-                ]
-            ),
-        );
+        $response = $this->deleteJson($url);
 
         $response->assertStatus(403);
         $response->assertJsonStructure([
-            'error'
+            'error',
         ]);
     }
 
@@ -332,19 +319,16 @@ class LanguagesControllerTest extends TestCase
 
         $language = $this->makeLanguageWithConstructions(true);
         $language['slug'] .= $this->faker->randomNumber(5, true);
+        $params = [
+            'language' => $language['slug'],
+        ];
+        $url = route(sprintf("api.%s.languages.destroy", self::API_VERSION), $params);
 
-        $response = $this->deleteJson(
-            route(
-                sprintf("api.%s.languages.destroy", self::API_VERSION),
-                [
-                    'language' => $language['slug'],
-                ]
-            ),
-        );
+        $response = $this->deleteJson($url);
 
         $response->assertStatus(404);
         $response->assertJsonStructure([
-            'error'
+            'error',
         ]);
     }
 
@@ -354,20 +338,17 @@ class LanguagesControllerTest extends TestCase
         $this->actingAs($admin, JwtAuthControllerTest::API_AUTH_GUARD);
 
         $language = $this->makeLanguageWithConstructions(true);
+        $params = [
+            'language' => $language['slug'],
+        ];
+        $url = route(sprintf("api.%s.languages.destroy", self::API_VERSION), $params);
 
-        $response = $this->deleteJson(
-            route(
-                sprintf("api.%s.languages.destroy", self::API_VERSION),
-                [
-                    'language' => $language['slug'],
-                ]
-            ),
-        );
+        $response = $this->deleteJson($url);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'success',
-            'slug'
+            'slug',
         ]);
         unset($language['constructions']);
         $this->assertDatabaseMissing('languages', $language);
@@ -420,6 +401,7 @@ class LanguagesControllerTest extends TestCase
                 'code' => $this->faker->paragraph,
             ];
         }
+
         return $language;
     }
 }

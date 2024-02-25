@@ -21,12 +21,13 @@ class ShowLanguageControllerTest extends TestCase
     {
         $language = $this->makeLanguageWithConstructions(true);
 
-        $response = $this->getJson(
-            route(sprintf("api.%s.languages.show", self::API_VERSION), [
-                'group' => 'Y',
-                'language' => $language['slug']
-            ])
-        );
+        $params = [
+            'group' => 'Y',
+            'language' => $language['slug']
+        ];
+        $url = route(sprintf("api.%s.languages.show", self::API_VERSION), $params);
+
+        $response = $this->getJson($url);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([

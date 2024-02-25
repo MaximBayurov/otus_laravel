@@ -47,12 +47,9 @@ class ConstructionsControllerTest extends TestCase
     public function test_index(): void
     {
         Construction::factory()->createMany(20);
+        $url = route(sprintf("api.%s.constructions.index", self::API_VERSION));
 
-        $response = $this->getJson(
-            route(
-                sprintf("api.%s.constructions.index", self::API_VERSION),
-            )
-        );
+        $response = $this->getJson($url);
 
         $response->assertStatus(200);
         $response->assertJsonStructure($this->getListStructure());
@@ -63,33 +60,36 @@ class ConstructionsControllerTest extends TestCase
      */
     public function test_index_with_redirect(): void
     {
-        $response = $this->getJson(
-            route(
-                sprintf("api.%s.constructions.index", self::API_VERSION),
-                [
-                    'constructions-page' => 999999999
-                ]
-            )
+        $params = [
+            'constructions-page' => 999999999,
+        ];
+        $url = route(
+            sprintf("api.%s.constructions.index", self::API_VERSION),
+            $params
         );
+
+        $response = $this->getJson($url);
 
         $response->assertRedirect(route(sprintf("api.%s.constructions.index", self::API_VERSION)));
     }
 
     public function test_store(): void
     {
+        $url = route(
+            sprintf("api.%s.constructions.store", self::API_VERSION),
+        );
+
         $response = $this->postJson(
-            route(
-                sprintf("api.%s.constructions.store", self::API_VERSION),
-            ),
+            $url,
             $this->makeConstructionWithLanguages(),
             [
-                'Authorization' => 'Bearer asd.asdasdasd'
+                'Authorization' => 'Bearer asd.asdasdasd',
             ]
         );
 
         $response->assertStatus(403);
         $response->assertJsonStructure([
-            'error'
+            'error',
         ]);
     }
 
@@ -107,11 +107,12 @@ class ConstructionsControllerTest extends TestCase
         $construction = array_filter($this->makeConstructionWithLanguages(), function ($key) use ($field) {
             return $key !== $field;
         }, ARRAY_FILTER_USE_KEY);
+        $url = route(
+            sprintf("api.%s.constructions.store", self::API_VERSION),
+        );
 
         $response = $this->postJson(
-            route(
-                sprintf("api.%s.constructions.store", self::API_VERSION),
-            ),
+            $url,
             $construction,
         );
 
@@ -119,8 +120,8 @@ class ConstructionsControllerTest extends TestCase
         $response->assertJsonStructure([
             'message',
             'errors' => [
-                $field
-            ]
+                $field,
+            ],
         ]);
     }
 
@@ -130,18 +131,19 @@ class ConstructionsControllerTest extends TestCase
         $this->actingAs($admin, JwtAuthControllerTest::API_AUTH_GUARD);
 
         $construction = $this->makeConstructionWithLanguages();
+        $url = route(
+            sprintf("api.%s.constructions.store", self::API_VERSION),
+        );
 
         $response = $this->postJson(
-            route(
-                sprintf("api.%s.constructions.store", self::API_VERSION),
-            ),
+            $url,
             $construction,
         );
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'success',
-            'slug'
+            'slug',
         ]);
         unset($construction['languages']);
         $this->assertDatabaseHas('constructions', $construction);
@@ -150,12 +152,12 @@ class ConstructionsControllerTest extends TestCase
     public function test_show(): void
     {
         $construction = Construction::latest()->first();
+        $params = [
+            'construction' => $construction->slug,
+        ];
+        $url = route(sprintf("api.%s.constructions.show", self::API_VERSION), $params);
 
-        $response = $this->getJson(
-            route(sprintf("api.%s.constructions.show", self::API_VERSION), [
-                'construction' => $construction->slug
-            ])
-        );
+        $response = $this->getJson($url);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -172,7 +174,7 @@ class ConstructionsControllerTest extends TestCase
                     'title',
                     'description',
                     'code',
-                ]
+                ],
             ],
         ]);
     }
@@ -180,13 +182,13 @@ class ConstructionsControllerTest extends TestCase
     public function test_show_grouped(): void
     {
         $construction = Construction::latest()->first();
+        $params = [
+            'group' => 'Y',
+            'construction' => $construction->slug,
+        ];
+        $url = route(sprintf("api.%s.constructions.show", self::API_VERSION), $params);
 
-        $response = $this->getJson(
-            route(sprintf("api.%s.constructions.show", self::API_VERSION), [
-                'group' => 'Y',
-                'construction' => $construction->slug
-            ])
-        );
+        $response = $this->getJson($url);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -203,23 +205,24 @@ class ConstructionsControllerTest extends TestCase
                     'title',
                     'description',
                     'codes' => [],
-                ]
+                ],
             ],
         ]);
     }
 
     public function test_show_not_found(): void
     {
-        $response = $this->getJson(
-            route(sprintf("api.%s.constructions.show", self::API_VERSION), [
-                'group' => 'Y',
-                'construction' => 'absolutely_random' . $this->faker->randomNumber(5, true)
-            ])
-        );
+        $params = [
+            'group' => 'Y',
+            'construction' => 'absolutely_random' . $this->faker->randomNumber(5, true),
+        ];
+        $url = route(sprintf("api.%s.constructions.show", self::API_VERSION), $params);
+
+        $response = $this->getJson($url);
 
         $response->assertStatus(404);
         $response->assertJsonStructure([
-            'error'
+            'error',
         ]);
     }
 
@@ -240,14 +243,13 @@ class ConstructionsControllerTest extends TestCase
         $construction = array_filter($construction, function ($key) use ($field) {
             return $key !== $field;
         }, ARRAY_FILTER_USE_KEY);
+        $params = [
+            'construction' => $slug,
+        ];
+        $url = route(sprintf("api.%s.constructions.update", self::API_VERSION), $params);
 
         $response = $this->patchJson(
-            route(
-                sprintf("api.%s.constructions.update", self::API_VERSION),
-                [
-                    'construction' => $slug
-                ]
-            ),
+            $url,
             $construction,
         );
 
@@ -255,8 +257,8 @@ class ConstructionsControllerTest extends TestCase
         $response->assertJsonStructure([
             'message',
             'errors' => [
-                $field
-            ]
+                $field,
+            ],
         ]);
     }
 
@@ -266,20 +268,19 @@ class ConstructionsControllerTest extends TestCase
         $this->actingAs($user, JwtAuthControllerTest::API_AUTH_GUARD);
 
         $construction = $this->makeConstructionWithLanguages(true);
+        $params = [
+            'construction' => $construction['slug'],
+        ];
+        $url = route(sprintf("api.%s.constructions.update", self::API_VERSION), $params);
 
         $response = $this->patchJson(
-            route(
-                sprintf("api.%s.constructions.update", self::API_VERSION),
-                [
-                    'construction' => $construction['slug']
-                ]
-            ),
+            $url,
             $construction,
         );
 
         $response->assertStatus(403);
         $response->assertJsonStructure([
-            'error'
+            'error',
         ]);
     }
 
@@ -290,20 +291,19 @@ class ConstructionsControllerTest extends TestCase
 
         $construction = $this->makeConstructionWithLanguages(true);
         $construction['slug'] .= $this->faker->randomNumber(5, true);
+        $params = [
+            'construction' => $construction['slug'],
+        ];
+        $url = route(sprintf("api.%s.constructions.update", self::API_VERSION), $params);
 
         $response = $this->patchJson(
-            route(
-                sprintf("api.%s.constructions.update", self::API_VERSION),
-                [
-                    'construction' => $construction['slug'],
-                ]
-            ),
+            $url,
             $construction,
         );
 
         $response->assertStatus(404);
         $response->assertJsonStructure([
-            'error'
+            'error',
         ]);
     }
 
@@ -315,21 +315,20 @@ class ConstructionsControllerTest extends TestCase
         $constructionOld = $this->makeConstructionWithLanguages(true);
         $constructionNew = $this->makeConstructionWithLanguages();
         $constructionNew['id'] = $constructionOld['id'];
+        $params = [
+            'construction' => $constructionOld['slug'],
+        ];
+        $url = route(sprintf("api.%s.constructions.update", self::API_VERSION), $params);
 
         $response = $this->patchJson(
-            route(
-                sprintf("api.%s.constructions.update", self::API_VERSION),
-                [
-                    'construction' => $constructionOld['slug'],
-                ]
-            ),
+            $url,
             $constructionNew,
         );
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'success',
-            'slug'
+            'slug',
         ]);
         unset($constructionNew['languages']);
         $this->assertDatabaseHas('constructions', $constructionNew);
@@ -341,19 +340,16 @@ class ConstructionsControllerTest extends TestCase
         $this->actingAs($user, JwtAuthControllerTest::API_AUTH_GUARD);
 
         $construction = $this->makeConstructionWithLanguages(true);
+        $params = [
+            'construction' => $construction['slug'],
+        ];
+        $url = route(sprintf("api.%s.constructions.destroy", self::API_VERSION), $params);
 
-        $response = $this->deleteJson(
-            route(
-                sprintf("api.%s.constructions.destroy", self::API_VERSION),
-                [
-                    'construction' => $construction['slug']
-                ]
-            ),
-        );
+        $response = $this->deleteJson($url);
 
         $response->assertStatus(403);
         $response->assertJsonStructure([
-            'error'
+            'error',
         ]);
     }
 
@@ -364,19 +360,16 @@ class ConstructionsControllerTest extends TestCase
 
         $construction = $this->makeConstructionWithLanguages(true);
         $construction['slug'] .= $this->faker->randomNumber(5, true);
+        $params = [
+            'construction' => $construction['slug'],
+        ];
+        $url = route(sprintf("api.%s.constructions.destroy", self::API_VERSION), $params);
 
-        $response = $this->deleteJson(
-            route(
-                sprintf("api.%s.constructions.destroy", self::API_VERSION),
-                [
-                    'construction' => $construction['slug'],
-                ]
-            ),
-        );
+        $response = $this->deleteJson($url);
 
         $response->assertStatus(404);
         $response->assertJsonStructure([
-            'error'
+            'error',
         ]);
     }
 
@@ -386,20 +379,17 @@ class ConstructionsControllerTest extends TestCase
         $this->actingAs($admin, JwtAuthControllerTest::API_AUTH_GUARD);
 
         $construction = $this->makeConstructionWithLanguages(true);
+        $params = [
+            'construction' => $construction['slug'],
+        ];
+        $url = route(sprintf("api.%s.constructions.destroy", self::API_VERSION), $params);
 
-        $response = $this->deleteJson(
-            route(
-                sprintf("api.%s.constructions.destroy", self::API_VERSION),
-                [
-                    'construction' => $construction['slug'],
-                ]
-            ),
-        );
+        $response = $this->deleteJson($url);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'success',
-            'slug'
+            'slug',
         ]);
         unset($construction['languages']);
         $this->assertDatabaseMissing('constructions', $construction);
@@ -452,6 +442,7 @@ class ConstructionsControllerTest extends TestCase
                 'code' => $this->faker->paragraph,
             ];
         }
+
         return $construction;
     }
 }

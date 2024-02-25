@@ -55,7 +55,9 @@ class JwtAuthControllerTest extends TestCase
 
     public function test_me_not_authorized(): void
     {
-        $response = $this->postJson(route('api.auth.me'));
+        $response = $this->postJson(
+            route('api.auth.me')
+        );
 
         $response->assertStatus(401);
         $response->assertJsonStructure([
@@ -66,7 +68,9 @@ class JwtAuthControllerTest extends TestCase
     public function test_me_authorized(): void
     {
         $this->actingAsRandomUser();
-        $response = $this->postJson(route('api.auth.me'));
+        $response = $this->postJson(
+            route('api.auth.me')
+        );
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -92,9 +96,13 @@ class JwtAuthControllerTest extends TestCase
         $token = $response['access_token'];
         $tokenType = $response['token_type'];
 
-        $response = $this->postJson(route('api.auth.logout'), [], [
-            'Authorization' => $tokenType . " " . $token,
-        ]);
+        $response = $this->postJson(
+            route('api.auth.logout'),
+            [],
+            [
+                'Authorization' => $tokenType . " " . $token,
+            ]
+        );
 
         $response->assertOk();
         $response->assertJsonStructure([
@@ -105,9 +113,13 @@ class JwtAuthControllerTest extends TestCase
 
     public function test_logout_not_authorized(): void
     {
-        $response = $this->postJson(route('api.auth.logout'), [], [
-            'Authorization' => 'asdasdasd.asdasdasd',
-        ]);
+        $response = $this->postJson(
+            route('api.auth.logout'),
+            [],
+            [
+                'Authorization' => 'asdasdasd.asdasdasd',
+            ]
+        );
 
         $response->assertStatus(401);
         $response->assertJsonStructure([
@@ -127,9 +139,13 @@ class JwtAuthControllerTest extends TestCase
             ]
         );
 
-        $response = $this->postJson(route('api.auth.refresh'), [], [
-            'Authorization' => $response['token_type'] . " " . $response['access_token'],
-        ]);
+        $response = $this->postJson(
+            route('api.auth.refresh'),
+            [],
+            [
+                'Authorization' => $response['token_type'] . " " . $response['access_token'],
+            ]
+        );
 
         $response->assertOk();
         $response->assertJsonStructure([
@@ -142,9 +158,13 @@ class JwtAuthControllerTest extends TestCase
 
     public function test_refresh_not_auth(): void
     {
-        $response = $this->postJson(route('api.auth.refresh'), [], [
-            'Authorization' => 'asdasdasd.asdasdasd',
-        ]);
+        $response = $this->postJson(
+            route('api.auth.refresh'),
+            [],
+            [
+                'Authorization' => 'asdasdasd.asdasdasd',
+            ]
+        );
 
         $response->assertStatus(401);
         $response->assertJsonStructure([
@@ -165,17 +185,25 @@ class JwtAuthControllerTest extends TestCase
     {
         $this->assertFalse(empty($token) || empty($tokenType));
 
-        $response = $this->postJson(route('api.auth.me'), [], [
-            'Authorization' => $tokenType . " " . $token,
-        ]);
+        $response = $this->postJson(
+            route('api.auth.me'),
+            [],
+            [
+                'Authorization' => $tokenType . " " . $token,
+            ]
+        );
         $response->assertOk();
     }
 
     private function assertInvalidToken(string $token, string $tokenType = "bearer"): void
     {
-        $response = $this->postJson(route('api.auth.me'), [], [
-            'Authorization' => $tokenType . " " . $token,
-        ]);
+        $response = $this->postJson(
+            route('api.auth.me'),
+            [],
+            [
+                'Authorization' => $tokenType . " " . $token,
+            ]
+        );
         $response->assertStatus(401);
     }
 }
