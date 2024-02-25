@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Foundation\Application as ContractsApplication;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -19,11 +20,11 @@ class RegisteredUserController extends Controller
 {
 
     /**
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
+     * @return View|Application|Factory|ContractsApplication
      */
-    public function index(Request $request): View|\Illuminate\Foundation\Application|Factory|Application
+    public function index(Request $request): View | ContractsApplication | Factory | Application
     {
         return view('pages.register');
     }
@@ -33,7 +34,7 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): Application|\Illuminate\Foundation\Application|RedirectResponse|Redirector
+    public function store(Request $request): Application | ContractsApplication | RedirectResponse | Redirector
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],

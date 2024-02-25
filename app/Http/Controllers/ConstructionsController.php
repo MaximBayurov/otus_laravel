@@ -9,9 +9,10 @@ use Auth;
 use Domain\ModuleLanguageConstructions\Repositories\ConstructionsRepository;
 use Domain\ModuleLanguageConstructions\Repositories\LanguagesRepository;
 use Domain\ModuleLanguageConstructions\Services\ConstructionImplementationsService;
-use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Foundation\Application as ContractsApplication;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -20,11 +21,12 @@ class ConstructionsController extends Controller
 {
     /**
      * Display a listing of the resource.
+     *
      * @throws NotFoundExceptionInterface|ContainerExceptionInterface
      */
     public function index(
         ConstructionsRepository $constructionsRepository
-    ): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application {
+    ): Factory | View | Application | RedirectResponse | ContractsApplication {
         if (!Auth::user()?->can('viewAny', Construction::class)) {
             return redirect()->route('admin.home');
         }
@@ -45,7 +47,7 @@ class ConstructionsController extends Controller
     public function create(
         ConstructionImplementationsService $implementationsService,
         LanguagesRepository $languagesRepository
-    ): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application {
+    ): Factory | View | Application | RedirectResponse | ContractsApplication {
         if (!Auth::user()?->can('create', Construction::class)) {
             return redirect()->route('admin.home');
         }
@@ -84,7 +86,7 @@ class ConstructionsController extends Controller
         Construction $construction,
         ConstructionImplementationsService $implementationsService,
         LanguagesRepository $languagesRepository
-    ): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application {
+    ): Factory | View | Application | RedirectResponse | ContractsApplication {
         if (!Auth::user()?->can('viewAny', Construction::class)) {
             return redirect()->route('admin.home');
         }
@@ -109,7 +111,7 @@ class ConstructionsController extends Controller
         Construction $construction,
         ConstructionImplementationsService $implementationsService,
         LanguagesRepository $languagesRepository
-    ): Factory|View|\Illuminate\Foundation\Application|RedirectResponse|Application {
+    ): Factory | View | Application | RedirectResponse | ContractsApplication {
         if (!Auth::user()?->can('update', $construction)) {
             return redirect()->route('admin.home');
         }
@@ -151,14 +153,16 @@ class ConstructionsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Construction $construction, ConstructionsRepository $constructionsRepository): RedirectResponse
-    {
+    public function destroy(
+        Construction $construction,
+        ConstructionsRepository $constructionsRepository
+    ): RedirectResponse {
         if (!Auth::user()->can('delete', $construction)) {
             return redirect()->route('admin.home');
         }
 
         $success = $constructionsRepository->delete($construction);
-        if (!$success)  {
+        if (!$success) {
             return redirect()
                 ->route('admin.constructions.index')
                 ->with('error', __('admin.row_not_deleted', ['id' => $construction->getId()]));

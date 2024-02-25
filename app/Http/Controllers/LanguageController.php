@@ -9,7 +9,8 @@ use Domain\ModuleLanguageConstructions\Models\Language;
 use Domain\ModuleLanguageConstructions\Repositories\ConstructionsRepository;
 use Domain\ModuleLanguageConstructions\Repositories\LanguagesRepository;
 use Domain\ModuleLanguageConstructions\Services\ConstructionImplementationsService;
-use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Foundation\Application as ContractsApplication;
+use Illuminate\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -23,7 +24,7 @@ class LanguageController extends Controller
     public function index(
         Request $request,
         LanguagesRepository $languagesRepository
-    ): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application {
+    ): View | Application | Factory | RedirectResponse | ContractsApplication {
         if (!Auth::user()?->can('viewAny', Language::class)) {
             return redirect()->route('admin.home');
         }
@@ -45,7 +46,7 @@ class LanguageController extends Controller
     public function create(
         ConstructionImplementationsService $implementationsService,
         ConstructionsRepository $constructionsRepository
-    ): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application {
+    ): View | Application | Factory | RedirectResponse | ContractsApplication {
         if (!Auth::user()?->can('create', Language::class)) {
             return redirect()->route('admin.home');
         }
@@ -90,7 +91,7 @@ class LanguageController extends Controller
         Language $language,
         ConstructionImplementationsService $implementationsService,
         ConstructionsRepository $constructionsRepository
-    ): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application {
+    ): View | Application | Factory | RedirectResponse | ContractsApplication {
         if (!Auth::user()?->can('viewAny', Language::class)) {
             return redirect()->route('admin.home');
         }
@@ -115,7 +116,7 @@ class LanguageController extends Controller
         Language $language,
         ConstructionsRepository $constructionsRepository,
         ConstructionImplementationsService $implementationsService
-    ): View|\Illuminate\Foundation\Application|Factory|RedirectResponse|Application {
+    ): View | Application | Factory | RedirectResponse | ContractsApplication {
         if (!Auth::user()?->can('update', $language)) {
             return redirect()->route('admin.home');
         }

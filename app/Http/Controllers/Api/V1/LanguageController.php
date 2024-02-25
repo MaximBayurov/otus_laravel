@@ -10,6 +10,7 @@ use App\Http\Resources\Languages;
 use Domain\ModuleLanguageConstructions\Models\Language;
 use Domain\ModuleLanguageConstructions\Repositories\LanguagesRepository;
 use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Foundation\Application as ContractsApplication;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class LanguageController extends Controller
     public function index(
         Request $request,
         LanguagesRepository $languagesRepository
-    ): Application|Languages\CollectionResource|Redirector|RedirectResponse|\Illuminate\Contracts\Foundation\Application {
+    ): Application | Languages\CollectionResource | Redirector | RedirectResponse | ContractsApplication {
         $page = (int) $request->get(config('pagination.languages_page_name'), 1);
         $languages = $languagesRepository->getPagination($page);
         $languages->withPath($request->url());

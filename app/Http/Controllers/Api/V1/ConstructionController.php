@@ -11,6 +11,7 @@ use Domain\ModuleLanguageConstructions\Models\Construction;
 use Domain\ModuleLanguageConstructions\Repositories\ConstructionsRepository;
 use Domain\ModuleLanguageConstructions\Services\ConstructionImplementationsService;
 use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Foundation\Application as ContractsApplication;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,7 +25,7 @@ class ConstructionController extends Controller
     public function index(
         Request $request,
         ConstructionsRepository $constructionsRepository
-    ): Application | Constructions\CollectionResource | Redirector | RedirectResponse | \Illuminate\Contracts\Foundation\Application {
+    ): Application | Constructions\CollectionResource | Redirector | RedirectResponse | ContractsApplication {
         $page = (int) $request->get(config('pagination.constructions_page_name'), 1);
         $constructions = $constructionsRepository->getPagination($page);
         $constructions->withPath($request->url());
