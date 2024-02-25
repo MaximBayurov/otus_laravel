@@ -27,25 +27,9 @@ class UpdateLanguageRequest extends FormRequest
      */
     public function rules(): array
     {
-        $language = $this->route('language');
-        if (!is_a($language, Language::class)) {
-            $languageRepository = app()->get(LanguagesRepository::class);
-            $language = $languageRepository->getBySlug($language);
-        }
-
-        $slug = [
-            'required',
-            'max:255',
-        ];
-        $slug[] = !empty($language)
-            ? Rule::unique('languages')->ignore($language->id)
-            : Rule::unique(
-                'languages'
-            );
-
         return [
             'id' => 'required',
-            'slug' => $slug,
+            'slug' => $this->getSlugRules(),
             'title' => ['required', 'max:255'],
             'description' => ['max:65535'],
             'constructions.*.id' => ['sometimes', 'required', 'exists:App\Models\Construction,id'],
@@ -93,5 +77,19 @@ class UpdateLanguageRequest extends FormRequest
         $implementationsRepository->updateForLanguage($language, $this->get('constructions', []));
 
         return $language;
+    }
+
+    /**
+     * Возвращает правила валидации для поля slug
+     * @return array
+     */
+    protected function getSlugRules(): array
+    {
+        $language = $this->route('language');
+        return [
+            'required',
+            'max:255',
+            Rule::unique('languages')->ignore($language->id)
+        ];
     }
 }

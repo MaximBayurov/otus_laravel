@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreConstructionRequest;
-use App\Http\Requests\UpdateConstructionRequest;
+use App\Http\Requests\Api\UpdateConstructionRequest;
 use App\Http\Resources\Constructions;
 use App\Http\Resources\Languages;
 use Domain\ModuleLanguageConstructions\Models\Construction;

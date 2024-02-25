@@ -24,30 +24,12 @@ class UpdateConstructionRequest extends FormRequest
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function rules(): array
     {
-        $construction = $this->route('construction');
-        if (!is_a($construction, Construction::class)) {
-            $languageRepository = app()->get(ConstructionsRepository::class);
-            $construction = $languageRepository->getBySlug($construction);
-        }
-
-        $slug = [
-            'required',
-            'max:255',
-        ];
-        $slug[] = !empty($construction)
-            ? Rule::unique('constructions')->ignore($construction->id)
-            : Rule::unique(
-                'constructions'
-            );
-
         return [
             'id' => 'required',
-            'slug' => $slug,
+            'slug' => $this->getSlugRules(),
             'title' => ['required', 'max:255'],
             'description' => ['max:65535'],
             'languages.*.id' => ['sometimes', 'required', 'exists:App\Models\Language,id'],
@@ -95,5 +77,19 @@ class UpdateConstructionRequest extends FormRequest
         $implementationsRepository->updateForConstruction($construction, $this->get('languages', []));
 
         return $construction;
+    }
+
+    /**
+     * Возвращает правила валидации для поля slug
+     * @return array
+     */
+    protected function getSlugRules(): array
+    {
+        $construction = $this->route('construction');
+        return [
+            'required',
+            'max:255',
+            Rule::unique('constructions')->ignore($construction->id)
+        ];
     }
 }
