@@ -12,6 +12,7 @@ use Domain\ModuleLanguageConstructions\Models\Construction;
 use Domain\ModuleLanguageConstructions\Models\Language;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 readonly class ConstructionsRepository implements \Domain\ModuleLanguageConstructions\Repositories\ConstructionsRepository
 {
@@ -23,6 +24,7 @@ readonly class ConstructionsRepository implements \Domain\ModuleLanguageConstruc
     #[CachedMethod]
     /**
      * Возвращает отформатированные опции для select с конструкциями
+     *
      * @return array
      */
     public function getOptions(): array
@@ -37,6 +39,7 @@ readonly class ConstructionsRepository implements \Domain\ModuleLanguageConstruc
                         'title' => $construction->title,
                     ];
                 }
+
                 return $result;
             }
         );
@@ -49,7 +52,11 @@ readonly class ConstructionsRepository implements \Domain\ModuleLanguageConstruc
             $this->cacheHelper->makeKey([__METHOD__, $page, $pageSize->value]),
             function () use ($page, $pageSize) {
                 /** @noinspection PhpUndefinedMethodInspection */
-                return Construction::paginate($pageSize->value, pageName: config('pagination.constructions_page_name'), page: $page);
+                return Construction::paginate(
+                    $pageSize->value,
+                    pageName: config('pagination.constructions_page_name'),
+                    page: $page
+                );
             }
         );
     }
@@ -64,25 +71,42 @@ readonly class ConstructionsRepository implements \Domain\ModuleLanguageConstruc
         return Construction::all();
     }
 
-    public function add(array $construction): Construction
+    public function add(array $construction): ?Construction
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        $construction = Construction::create($construction);
-        Cache::tags([Construction::class])->flush();
+        try {
+            /** @noinspection PhpUndefinedMethodInspection */
+            $construction = Construction::create($construction);
+            Cache::tags([Construction::class])->flush();
 
-        return $construction;
+            return $construction;
+        } catch (\Exception $e) {
+            Log::error($e->getMessage(), [
+                'trace' => $e->getTrace(),
+                'construction' => $construction,
+            ]);
+            return null;
+        }
     }
 
-    public function update(Construction $construction, array $fields): void
+    public function update(Construction $construction, array $fields): bool
     {
-        $construction->update($fields);
-        Cache::tags([Construction::class])->flush();
+        $result = $construction->update($fields);
+        if ($result) {
+            Cache::tags([Construction::class])->flush();
+        }
+
+        return $result;
     }
 
-    public function delete(Construction $construction): void
+    public function delete(Construction $construction): bool
     {
-        $construction->languageImpls()->unsearchable();
-        $construction->delete();
-        Cache::tags([Construction::class, Language::class])->flush();
+        $implementations = $construction->languageImpls()->get();
+        $result = $construction->delete();
+        if ($result) {
+            $implementations->unsearchable();
+            Cache::tags([Construction::class, Language::class])->flush();
+        }
+
+        return (bool) $result;
     }
 }

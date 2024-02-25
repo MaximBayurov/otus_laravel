@@ -2,11 +2,12 @@
 
 namespace Domain\ModuleLanguageConstructions\Services;
 
+use App\Http\Resources\Languages;
+use App\Http\Resources\Constructions;
 use App\Repositories\ConstructionLanguageRepository;
 use Domain\ModuleLanguageConstructions\Models\Construction;
 use Domain\ModuleLanguageConstructions\Models\Language;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * Сервис для работы с реализациями конструкций в языках программирования
@@ -80,9 +81,13 @@ readonly class ConstructionImplementationsService
      * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
      * @throws \Exception
      */
-    public function getGroupedWithCodes(Collection $collection, string $resource)
+    public function getGroupedWithCodes(Collection $collection, string $resource): Collection |\Illuminate\Support\Collection
     {
-        if (is_a($resource, JsonResource::class)) {
+        $allowedResources = [
+            Languages\ItemResource::class,
+            Constructions\ItemResource::class,
+        ];
+        if (!in_array($resource, $allowedResources)) {
             throw new \Exception("Передан некорректный ресурс");
         }
 

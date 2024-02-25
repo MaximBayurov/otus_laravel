@@ -71,7 +71,12 @@ class LanguageController extends Controller
             return redirect()->route('admin.home');
         }
 
-        $request->handle();
+        $result = $request->handle();
+        if (empty($result)) {
+            return redirect()
+                ->route('admin.languages.create')
+                ->with('error', __('admin.row_not_created', ['entity_name' => 'Язык программирования']));
+        }
 
         return redirect()
             ->route('admin.languages.index')
@@ -137,7 +142,12 @@ class LanguageController extends Controller
             return redirect()->route('admin.home');
         }
 
-        $request->handle($language);
+        $result = !empty($request->handle($language));
+        if (!$result) {
+            return redirect()
+                ->route('admin.languages.edit', ['language' => $language->getId()])
+                ->with('error', __('admin.row_not_updated', ['id' => $language->getId()]));
+        }
 
         return redirect()
             ->route('admin.languages.index')
@@ -153,7 +163,13 @@ class LanguageController extends Controller
             return redirect()->route('admin.home');
         }
 
-        $languagesRepository->delete($language);
+        $result = $languagesRepository->delete($language);
+
+        if (!$result) {
+            return redirect()
+                ->route('admin.languages.index')
+                ->with('error', __('admin.row_not_deleted', ['id' => $language->getId()]));
+        }
 
         return redirect()
             ->route('admin.languages.index')

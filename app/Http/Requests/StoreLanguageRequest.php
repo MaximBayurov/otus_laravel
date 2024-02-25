@@ -53,15 +53,18 @@ class StoreLanguageRequest extends FormRequest
     /**
      * Обработка запроса на создание языка программирования
      *
-     * @return Language
+     * @return null|Language
      */
-    public function handle(): Language
+    public function handle(): ?Language
     {
         /**
          * @var LanguagesRepository $languagesRepository
          */
         $languagesRepository = App::get(LanguagesRepository::class);
         $language = $languagesRepository->add($this->only(['title', 'slug', 'description']));
+        if (empty($language)) {
+            return null;
+        }
 
         /**
          * @var ConstructionLanguageRepository $implementationsRepository

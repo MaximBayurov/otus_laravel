@@ -16,11 +16,11 @@ interface ConstructionsRepository
 
     public function getPagination(int $page, PageSizesEnum $pageSize): LengthAwarePaginator;
 
-    public function add(array $construction): Construction;
+    public function add(array $construction): ?Construction;
 
-    public function update(Construction $construction, array $fields): void;
+    public function update(Construction $construction, array $fields): bool;
 
-    public function delete(Construction $construction): void;
+    public function delete(Construction $construction): bool;
 
     public function getAll(): Collection;
 

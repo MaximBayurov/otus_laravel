@@ -24,7 +24,7 @@ class ConstructionController extends Controller
     public function index(
         Request $request,
         ConstructionsRepository $constructionsRepository
-    ): Application|Constructions\CollectionResource|Redirector|RedirectResponse|\Illuminate\Contracts\Foundation\Application {
+    ): Application | Constructions\CollectionResource | Redirector | RedirectResponse | \Illuminate\Contracts\Foundation\Application {
         $page = (int) $request->get(config('pagination.constructions_page_name'), 1);
         $constructions = $constructionsRepository->getPagination($page);
         $constructions->withPath($request->url());
@@ -48,8 +48,8 @@ class ConstructionController extends Controller
         $construction = $request->handle();
 
         return response()->json([
-            'success' => true,
-            'slug' => $construction->getSlug(),
+            'success' => !empty($construction),
+            'slug' => $request->get('slug'),
         ]);
     }
 
@@ -94,11 +94,11 @@ class ConstructionController extends Controller
             return response()->json(['error' => 'Access denied'], 403);
         }
 
-        $request->handle($construction);
+        $success = !empty($request->handle($construction));
 
         return response()->json([
-            'success' => true,
-            'slug' => $construction->getSlug(),
+            'success' => $success,
+            'slug' => $request->route()->parameter('construction'),
         ]);
     }
 
@@ -118,10 +118,8 @@ class ConstructionController extends Controller
             return response()->json(['error' => 'Access denied'], 403);
         }
 
-        $constructionsRepository->delete($construction);
-
         return response()->json([
-            'success' => true,
+            'success' => $constructionsRepository->delete($construction),
             'slug' => $construction->getSlug(),
         ]);
     }

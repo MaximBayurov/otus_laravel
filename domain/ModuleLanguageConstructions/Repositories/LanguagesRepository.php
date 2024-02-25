@@ -16,11 +16,11 @@ interface LanguagesRepository
 
     public function getPagination(int $page, PageSizesEnum $pageSize): LengthAwarePaginator;
 
-    public function add(array $language): Language;
+    public function add(array $language): ?Language;
 
-    public function update(Language $language, array $fields): void;
+    public function update(Language $language, array $fields): bool;
 
-    public function delete(Language $language): void;
+    public function delete(Language $language): bool;
 
     public function getBySlug(string $slug): ?Language;
 

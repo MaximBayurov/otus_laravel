@@ -65,7 +65,12 @@ class ConstructionsController extends Controller
             return redirect()->route('admin.home');
         }
 
-        $request->handle();
+        $success = !empty($request->handle());
+        if (!$success) {
+            return redirect()
+                ->route('admin.constructions.create')
+                ->with('error', __('admin.row_not_created', ['entity_name' => 'Языковая конструкция']));
+        }
 
         return redirect()
             ->route('admin.constructions.index')
@@ -131,7 +136,12 @@ class ConstructionsController extends Controller
             return redirect()->route('admin.home');
         }
 
-        $request->handle($construction);
+        $success = !empty($request->handle($construction));
+        if (!$success) {
+            return redirect()
+                ->route('admin.constructions.edit')
+                ->with('error', __('admin.row_not_updated', ['id' => $construction->getId()]));
+        }
 
         return redirect()
             ->route('admin.constructions.index')
@@ -147,7 +157,12 @@ class ConstructionsController extends Controller
             return redirect()->route('admin.home');
         }
 
-        $constructionsRepository->delete($construction);
+        $success = $constructionsRepository->delete($construction);
+        if (!$success)  {
+            return redirect()
+                ->route('admin.constructions.index')
+                ->with('error', __('admin.row_not_deleted', ['id' => $construction->getId()]));
+        }
 
         return redirect()
             ->route('admin.constructions.index')

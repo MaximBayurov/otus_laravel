@@ -54,15 +54,18 @@ class StoreConstructionRequest extends FormRequest
     /**
      * Обработка запроса на создание языковой конструкции
      *
-     * @return Construction
+     * @return null|Construction
      */
-    public function handle(): Construction
+    public function handle(): ?Construction
     {
         /**
          * @var ConstructionsRepository $constructionsRepository
          */
         $constructionsRepository = App::get(ConstructionsRepository::class);
         $construction = $constructionsRepository->add($this->only(['title', 'slug', 'description']));
+        if (empty($construction)) {
+            return null;
+        }
 
         /**
          * @var ConstructionLanguageRepository $implementationsRepository

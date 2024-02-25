@@ -12,6 +12,7 @@ use Domain\ModuleLanguageConstructions\Models\Language;
 use Domain\ModuleLanguageConstructions\Repositories\LanguagesRepository as ILanguagesRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 readonly class LanguagesRepository implements ILanguagesRepository
 {
@@ -80,26 +81,42 @@ readonly class LanguagesRepository implements ILanguagesRepository
         return Language::firstWhere('slug', '=', $slug);
     }
 
-    public function add(array $language): Language
+    public function add(array $language): ?Language
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        $language = Language::create($language);
-        Cache::tags([Language::class])->flush();
+        try {
+            /** @noinspection PhpUndefinedMethodInspection */
+            $language = Language::create($language);
+            Cache::tags([Language::class])->flush();
 
-        return $language;
+            return $language;
+        } catch (\Exception $e) {
+            Log::error($e->getMessage(), [
+                'trace' => $e->getTrace(),
+                'language' => $language,
+            ]);
+            return null;
+        }
     }
 
-    public function update(Language $language, array $fields): void
+    public function update(Language $language, array $fields): bool
     {
-        $language->update($fields);
-        Cache::tags([Construction::class])->flush();
+        $result = $language->update($fields);
+        if ($result) {
+            Cache::tags([Construction::class])->flush();
+        }
+        return $result;
     }
 
-    public function delete(Language $language): void
+    public function delete(Language $language): bool
     {
-        $language->constructionImpls()->unsearchable();
-        $language->delete();
-        Cache::tags([Construction::class, Language::class])->flush();
+        $implementations = $language->constructionImpls()->get();
+        $result = $language->delete();
+        if ($result) {
+            $implementations->unsearchable();
+            Cache::tags([Construction::class, Language::class])->flush();
+        }
+
+        return (bool) $result;
     }
 
 }

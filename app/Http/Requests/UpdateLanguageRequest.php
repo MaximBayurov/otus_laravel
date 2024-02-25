@@ -70,17 +70,21 @@ class UpdateLanguageRequest extends FormRequest
 
     /**
      * Обработка запроса на обновление языка программирования
+     *
      * @param Language $language
      *
-     * @return Language
+     * @return null|Language
      */
-    public function handle(Language $language): Language
+    public function handle(Language $language): ?Language
     {
         /**
          * @var LanguagesRepository $languagesRepository
          */
         $languagesRepository = App::get(LanguagesRepository::class);
-        $languagesRepository->update($language, $this->only(['title', 'slug', 'description']));
+        $result = $languagesRepository->update($language, $this->only(['title', 'slug', 'description']));
+        if (!$result) {
+            return null;
+        }
 
         /**
          * @var ConstructionLanguageRepository $implementationsRepository

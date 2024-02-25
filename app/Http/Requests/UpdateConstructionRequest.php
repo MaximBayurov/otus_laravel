@@ -75,15 +75,18 @@ class UpdateConstructionRequest extends FormRequest
      *
      * @param \Domain\ModuleLanguageConstructions\Models\Construction $construction
      *
-     * @return Construction
+     * @return null|Construction
      */
-    public function handle(Construction $construction): Construction
+    public function handle(Construction $construction): ?Construction
     {
         /**
          * @var ConstructionsRepository $constructionsRepository
          */
         $constructionsRepository = App::get(ConstructionsRepository::class);
-        $constructionsRepository->update($construction, $this->only(['title', 'slug', 'description']));
+        $result = $constructionsRepository->update($construction, $this->only(['title', 'slug', 'description']));
+        if (!$result) {
+            return null;
+        }
 
         /**
          * @var ConstructionLanguageRepository $implementationsRepository

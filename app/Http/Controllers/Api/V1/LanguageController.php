@@ -47,8 +47,8 @@ class LanguageController extends Controller
         $language = $request->handle();
 
         return response()->json([
-            'success' => true,
-            'slug' => $language->getSlug(),
+            'success' => !empty($language),
+            'slug' => $request->get('slug'),
         ]);
     }
 
@@ -87,11 +87,11 @@ class LanguageController extends Controller
             return response()->json(['error' => 'Access denied'], 403);
         }
 
-        $request->handle($language);
+        $success = !empty($request->handle($language));
 
         return response()->json([
-            'success' => true,
-            'slug' => $language->getSlug(),
+            'success' => $success,
+            'slug' => $request->route()->parameter('language'),
         ]);
     }
 
@@ -111,10 +111,8 @@ class LanguageController extends Controller
             return response()->json(['error' => 'Access denied'], 403);
         }
 
-        $languagesRepository->delete($language);
-
         return response()->json([
-            'success' => true,
+            'success' => $languagesRepository->delete($language),
             'slug' => $language->getSlug(),
         ]);
     }
