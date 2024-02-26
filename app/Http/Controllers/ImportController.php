@@ -39,11 +39,10 @@ class ImportController extends Controller
 
     public function start(
         StartImportRequest $request,
-        ImportService $importService
     ) {
         $data = $request->validated();
         $modelFormatted = ImportService::IMPORTABLE_MODELS[$data['entity']];
-        if (!$importService->canImport($data['entity'])) {
+        if (!\Auth::user()?->can('admin.import.model', $data['entity'])) {
             return redirect()
                 ->route('admin.import.index')
                 ->with('error', __('admin.import_start_denied', ['model' => $modelFormatted]));

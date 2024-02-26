@@ -19,7 +19,7 @@ class ExportController extends Controller
         return view('pages.admin.export.index', compact('models'));
     }
 
-    public function start(StartExportRequest $request, ExportService $exportService)
+    public function start(StartExportRequest $request)
     {
         $data = $request->validated();
         $modelFormatted = ExportService::EXPORTABLE_MODELS[$data['entity']];
