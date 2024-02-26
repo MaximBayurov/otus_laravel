@@ -41,13 +41,13 @@ class StartCommand extends UserCommand
 
     public function execute(): ServerResponse
     {
-        $userId = $this->getMessage()->getFrom()->getId();
+        $userId = $this->getMessage()?->getFrom()->getId();
 
         /**
          * @var UsersRepository $usersRepository
          */
         $usersRepository = app()->get(UsersRepository::class);
-        $user = $usersRepository->getByTelegramId($userId);
+        $user = !empty($userId) ? $usersRepository->getByTelegramId($userId) : null;
         if ($user) {
             $keyboard = new InlineKeyboard(
                 [

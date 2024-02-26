@@ -37,8 +37,13 @@ class TelegramWebhookController extends Controller
 
             $telegram->handle();
 
-            $message = $request->get('message') ?: $request->get('callback_query')["message"];
-            $botService->setCommandsInMenu($message["chat"]["id"]);
+            $message = $request->get('message')
+                ?: ($request->get('callback_query')
+                    ? $request->get('callback_query')["message"]
+                    : null);
+            if (!empty($message)) {
+                $botService->setCommandsInMenu($message["chat"]["id"]);
+            }
 
         } catch (TelegramException $e) {
             \Log::error($e->getMessage());
