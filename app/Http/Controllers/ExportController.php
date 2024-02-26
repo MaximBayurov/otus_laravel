@@ -10,6 +10,10 @@ class ExportController extends Controller
 {
     public function index(ExportService $exportService)
     {
+        if (!\Auth::user()?->can('admin.export')) {
+            return redirect()->route('admin.home');
+        }
+
         $models = $exportService->getAllowedModels();
 
         return view('pages.admin.export.index', compact('models'));
@@ -17,19 +21,15 @@ class ExportController extends Controller
 
     public function start(StartExportRequest $request, ExportService $exportService)
     {
-        [
-            'email' => $email,
-            'entity' => $model,
-            'redo' => $redo
-        ] = $request->only(['email', 'entity', 'redo']);
-        $modelFormatted = ExportService::EXPORTABLE_MODELS[$model];
-        if (!$exportService->canExport($model)) {
+        $data = $request->validated();
+        $modelFormatted = ExportService::EXPORTABLE_MODELS[$data['entity']];
+        if (!\Auth::user()?->can('admin.export.model', $data['entity'])) {
             return redirect()
                 ->route('admin.export.index')
                 ->with('error', __('admin.export_start_denied', ['model' => $modelFormatted]));
         }
 
-        dispatch(new ModelExportJob($model, $email, $redo));
+        dispatch(new ModelExportJob($data['entity'], $data['email'], (bool) $data['redo']));
 
         return redirect()
             ->route('admin.export.index')
@@ -37,7 +37,7 @@ class ExportController extends Controller
                 'alert-success',
                 __('admin.export_started', [
                     'model' => $modelFormatted,
-                    'email' => $email,
+                    'email' => $data['email'],
                 ])
             );
     }

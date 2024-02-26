@@ -9,6 +9,7 @@ use App\Http\Middleware\HostByNgrok;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\Locale;
+use App\Http\Middleware\SetVersionVariable;
 use App\Http\Middleware\TelegramCheckAuth;
 use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;

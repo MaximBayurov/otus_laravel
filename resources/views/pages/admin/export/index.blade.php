@@ -14,7 +14,7 @@
             id="entity" name="entity" :value="old('entity')"
             label="Экспортируемая модель" :options="$models"
             :error="$errors->default->first('entity')"/>
-        <x-forms.checkbox id="redo" label="Выполнить экспорт повторно, если нет данных за сегодня" :value="old('redo', 'false')"
+        <x-forms.checkbox id="redo" label="Выполнить экспорт повторно, если нет данных за сегодня" :value="old('redo', 'Y')"
                           name="redo"/>
     </form>
 

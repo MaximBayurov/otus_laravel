@@ -133,7 +133,7 @@ class TelegramBotService implements ITelegramBotService
 
     public function getRememberedAuthData(): array
     {
-        return session()->get('TELEGRAM_BOT_AUTH_DATA') ?: [];
+        return session()->pull('TELEGRAM_BOT_AUTH_DATA') ?: [];
     }
 
     /**

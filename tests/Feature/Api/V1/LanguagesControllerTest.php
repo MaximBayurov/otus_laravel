@@ -8,7 +8,6 @@ use App\Models\Language;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\Feature\Api\JwtAuthControllerTest;
 use Tests\TestCase;
 
 /**

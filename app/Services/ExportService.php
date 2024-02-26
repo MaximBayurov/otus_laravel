@@ -21,7 +21,7 @@ class ExportService
     {
         $result = [];
         foreach (self::EXPORTABLE_MODELS as $modelClass => $modelName) {
-            if (!$this->canExport($modelClass)) {
+            if (!Auth::user()?->can('admin.export.model', $modelClass)) {
                 continue;
             }
             $result[] = [
@@ -31,16 +31,5 @@ class ExportService
         }
 
         return $result;
-    }
-
-    /**
-     * Может ли текущий пользователь экспортировать модель
-     * @param string $modelClass
-     *
-     * @return bool
-     */
-    public function canExport(string $modelClass): bool
-    {
-        return Auth::user()?->can('viewAny', $modelClass);
     }
 }

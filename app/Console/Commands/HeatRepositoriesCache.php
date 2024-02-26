@@ -26,7 +26,7 @@ class HeatRepositoriesCache extends Command
      *
      * @var string
      */
-    protected $signature = 'app:heat-repo-cache
+    protected $signature = 'cache:heat-repo-cache
                                 {list? : Отображает список прогреваемого кэша}
                                 {--A|--all : Прогреть весь кеш}
                                 {--C|--clear : Очищать кэш перед прогревом}';

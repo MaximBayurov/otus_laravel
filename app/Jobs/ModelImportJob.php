@@ -53,11 +53,21 @@ class ModelImportJob implements ShouldQueue, ShouldBeUnique
         $this->import($storage);
 
         $this->sendEmail();
-        \Log::info('Результаты импорта', [
-            'failed' => $this->stats['failed'],
-            'created' => $this->stats['created'],
-        ]);
         Cache::tags([$this->model])->flush();
+
+        $logData['stats'] = $this->stats;
+        if ($this->stats['failed'] === 0) {
+            $storage->delete($this->filePath);
+        } else {
+            $logData['jobInfo'] = [
+                'model' => $this->model,
+                'filePath' => $this->filePath,
+                'fields' => $this->fields,
+                'email' => $this->email,
+                'withHeaders' => $this->withHeaders,
+            ];
+        }
+        \Log::info('Результаты импорта', $logData);
     }
 
     /**

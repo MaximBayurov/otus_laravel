@@ -21,7 +21,7 @@ class ImportService
     {
         $result = [];
         foreach (self::IMPORTABLE_MODELS as $modelClass => $modelName) {
-            if (!$this->canImport($modelClass)) {
+            if (!Auth::user()?->can('admin.import.model', $modelClass)) {
                 continue;
             }
             $result[] = [
@@ -31,16 +31,5 @@ class ImportService
         }
 
         return $result;
-    }
-
-    /**
-     * Может ли текущий пользователь импортировать модель
-     * @param string $modelClass
-     *
-     * @return bool
-     */
-    public function canImport(string $modelClass): bool
-    {
-        return Auth::user()?->can('create', $modelClass);
     }
 }

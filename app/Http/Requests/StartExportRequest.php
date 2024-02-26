@@ -19,15 +19,14 @@ class StartExportRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
      */
-    public function rules(): array
+    public function rules(ExportService $exportService): array
     {
-        $exportService = \App::get(ExportService::class);
-
         return [
             'email' => ['required', 'email'],
             'entity' => ['required', Rule::in(array_column($exportService->getAllowedModels(), 'value'))],
+            'redo' => ['required', 'boolean'],
         ];
     }
 
@@ -36,10 +35,8 @@ class StartExportRequest extends FormRequest
      */
     protected function prepareForValidation()
     {
-        if (!$this->exists('redo')) {
-            $this->merge([
-                "redo" => false,
-            ]);
-        }
+        $this->merge([
+            "redo" => $this->exists('redo'),
+        ]);
     }
 }

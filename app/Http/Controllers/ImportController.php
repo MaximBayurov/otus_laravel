@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Helpers\ModelHelper;
 use App\Http\Requests\ImportFieldsRequest;
 use App\Http\Requests\StartImportRequest;
@@ -10,17 +9,23 @@ use App\Jobs\ModelImportJob;
 use App\Services\ImportService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Str;
 
 class ImportController extends Controller
 {
-    public function index(ImportService $exportService)
+    public function index(ImportService $importService)
     {
-        $models = $exportService->getAllowedModels();
+        if (!\Auth::user()?->can('admin.import')) {
+            return redirect()->route('admin.home');
+        }
+
+        $models = $importService->getAllowedModels();
         $fields = old('fields');
         $fieldsRendered = null;
         if (!empty($fields) && !empty(old('entity'))) {
-            $fieldsRendered = View::make('pages.admin.import.fields', compact('fields'));;
+            $fieldsRendered = View::make('pages.admin.import.fields', compact('fields'));
         }
+
         return view('pages.admin.import.index', compact('models', 'fieldsRendered'));
     }
 
@@ -28,32 +33,29 @@ class ImportController extends Controller
     {
         $model = (new ($request->get('model')));
         $fields = $model->getFillable();
+
         return view('pages.admin.import.fields', compact('fields'));
     }
 
-    public function start(StartImportRequest $request, ImportService $importService)
-    {
-        [
-            'email' => $email,
-            'entity' => $model,
-            'withHeaders' => $withHeaders,
-            'fields' => $fields,
-        ] = $request->only(['email', 'entity', 'withHeaders', 'fields']);
-        $modelFormatted = ImportService::IMPORTABLE_MODELS[$model];
-        if (!$importService->canImport($model)) {
+    public function start(
+        StartImportRequest $request,
+        ImportService $importService
+    ) {
+        $data = $request->validated();
+        $modelFormatted = ImportService::IMPORTABLE_MODELS[$data['entity']];
+        if (!$importService->canImport($data['entity'])) {
             return redirect()
                 ->route('admin.import.index')
                 ->with('error', __('admin.import_start_denied', ['model' => $modelFormatted]));
         }
 
-
         $filePath = Storage::disk(ModelImportJob::DISK_NAME)->putFileAs(
-            ModelHelper::getNameFormatted($model),
+            ModelHelper::getNameFormatted($data['entity']),
             $request->files->get('file'),
-            now()->format('Y-m-d H:m:s') . ".csv"
+            Str::uuid()->toString() . ".csv"
         );
 
-        dispatch(new ModelImportJob($model, $filePath, $fields, $email, $withHeaders));
+        dispatch(new ModelImportJob($data['entity'], $filePath, $data['fields'], $data['email'], $data['withHeaders']));
 
         return redirect()
             ->route('admin.import.index')
@@ -61,7 +63,7 @@ class ImportController extends Controller
                 'alert-success',
                 __('admin.import_started', [
                     'model' => $modelFormatted,
-                    'email' => $email,
+                    'email' => $data['email'],
                 ])
             );
     }

@@ -4,8 +4,12 @@ namespace App\Providers;
 
 use App\Enums\Permissions\Admin;
 use App\Models\User;
+use App\Policies\AdminExportPolicy;
+use App\Policies\AdminImportPolicy;
 use App\Repositories\UsersRepository;
 use App\Services\CacheHelper;
+use App\Services\ExportService;
+use App\Services\ImportService;
 use App\Services\ITelegramBotService;
 use App\Services\TelegramBotService;
 use Gate;
@@ -36,6 +40,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(UsersRepository::class, function (Application $app) {
             return new UsersRepository();
         });
+        $this->app->singleton(ExportService::class, function (Application $app) {
+            return new ExportService();
+        });
+        $this->app->singleton(ImportService::class, function (Application $app) {
+            return new ImportService();
+        });
     }
 
     /**
@@ -46,5 +56,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('admin.home', function (User $user) {
             return $user->havePermissionTo((Admin::VIEW)->code());
         });
+        Gate::define('admin.import', [AdminImportPolicy::class, 'index']);
+        Gate::define('admin.import.model', [AdminImportPolicy::class, 'canImport']);
+        Gate::define('admin.export', [AdminExportPolicy::class, 'index']);
+        Gate::define('admin.export.model', [AdminExportPolicy::class, 'canExport']);
     }
 }

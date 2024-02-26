@@ -11,28 +11,23 @@
 |
 */
 
-use App\Http\Controllers\Api\TelegramWebhookController;
-use App\Http\Controllers\Api\JwtAuthController;
 use App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Api\V2;
 use Illuminate\Routing\Router;
-
-Route::prefix('/auth')
-    ->name('auth.')
-    ->group(function ($router) {
-        Route::post('login', [JwtAuthController::class, 'login'])->name('login');
-        Route::post('logout', [JwtAuthController::class, 'logout'])->name('logout');
-        Route::post('refresh', [JwtAuthController::class, 'refresh'])->name('refresh');
-        Route::post('me', [JwtAuthController::class, 'me'])->name('me');
-    });
-
-
-Route::any('/telegram', TelegramWebhookController::class);
 
 if (!function_exists('getV1Routes')) {
     function getV1Routes(Router $router) {
         $router->apiResource('/languages', V1\LanguageController::class);
         $router->apiResource('/constructions', V1\ConstructionController::class);
+        $router->any('/telegram', V1\TelegramWebhookController::class)->name('telegram');
+        $router->prefix('/auth')
+            ->name('auth.')
+            ->group(function ($router) {
+                $router->post('login', [V1\JwtAuthController::class, 'login'])->name('login');
+                $router->post('logout', [V1\JwtAuthController::class, 'logout'])->name('logout');
+                $router->post('refresh', [V1\JwtAuthController::class, 'refresh'])->name('refresh');
+                $router->post('me', [V1\JwtAuthController::class, 'me'])->name('me');
+            });
     }
 }
 

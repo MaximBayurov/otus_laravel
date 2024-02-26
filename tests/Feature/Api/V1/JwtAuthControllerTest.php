@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Api;
+namespace Tests\Feature\Api\V1;
 
 use App\Enums\RolesEnum;
 use App\Models\User;
@@ -13,13 +13,14 @@ use Tests\TestCase;
 class JwtAuthControllerTest extends TestCase
 {
     const API_AUTH_GUARD = 'api';
+    const API_VERSION = 'v1';
 
     public function test_login(): void
     {
         $user = User::factory()->create();
 
         $response = $this->postJson(
-            route('api.auth.login'),
+            route(sprintf('api.%s.auth.login', self::API_VERSION)),
             [
                 'email' => $user->email,
                 'password' => $user->email,
@@ -40,7 +41,7 @@ class JwtAuthControllerTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->postJson(
-            route('api.auth.login'),
+            route(sprintf('api.%s.auth.login', self::API_VERSION)),
             [
                 'email' => $user->email . $user->email,
                 'password' => $user->email,
@@ -56,7 +57,7 @@ class JwtAuthControllerTest extends TestCase
     public function test_me_not_authorized(): void
     {
         $response = $this->postJson(
-            route('api.auth.me')
+            route(sprintf('api.%s.auth.me', self::API_VERSION)),
         );
 
         $response->assertStatus(401);
@@ -69,7 +70,7 @@ class JwtAuthControllerTest extends TestCase
     {
         $this->actingAsRandomUser();
         $response = $this->postJson(
-            route('api.auth.me')
+            route(sprintf('api.%s.auth.me', self::API_VERSION)),
         );
 
         $response->assertStatus(200);
@@ -86,7 +87,7 @@ class JwtAuthControllerTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->postJson(
-            route('api.auth.login'),
+            route(sprintf('api.%s.auth.login', self::API_VERSION)),
             [
                 'email' => $user->email,
                 'password' => $user->email,
@@ -97,7 +98,7 @@ class JwtAuthControllerTest extends TestCase
         $tokenType = $response['token_type'];
 
         $response = $this->postJson(
-            route('api.auth.logout'),
+            route(sprintf('api.%s.auth.logout', self::API_VERSION)),
             [],
             [
                 'Authorization' => $tokenType . " " . $token,
@@ -114,7 +115,7 @@ class JwtAuthControllerTest extends TestCase
     public function test_logout_not_authorized(): void
     {
         $response = $this->postJson(
-            route('api.auth.logout'),
+            route(sprintf('api.%s.auth.logout', self::API_VERSION)),
             [],
             [
                 'Authorization' => 'asdasdasd.asdasdasd',
@@ -132,7 +133,7 @@ class JwtAuthControllerTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->postJson(
-            route('api.auth.login'),
+            route(sprintf('api.%s.auth.login', self::API_VERSION)),
             [
                 'email' => $user->email,
                 'password' => $user->email,
@@ -140,7 +141,7 @@ class JwtAuthControllerTest extends TestCase
         );
 
         $response = $this->postJson(
-            route('api.auth.refresh'),
+            route(sprintf('api.%s.auth.refresh', self::API_VERSION)),
             [],
             [
                 'Authorization' => $response['token_type'] . " " . $response['access_token'],
@@ -159,7 +160,7 @@ class JwtAuthControllerTest extends TestCase
     public function test_refresh_not_auth(): void
     {
         $response = $this->postJson(
-            route('api.auth.refresh'),
+            route(sprintf('api.%s.auth.refresh', self::API_VERSION)),
             [],
             [
                 'Authorization' => 'asdasdasd.asdasdasd',
@@ -186,7 +187,7 @@ class JwtAuthControllerTest extends TestCase
         $this->assertFalse(empty($token) || empty($tokenType));
 
         $response = $this->postJson(
-            route('api.auth.me'),
+            route(sprintf('api.%s.auth.me', self::API_VERSION)),
             [],
             [
                 'Authorization' => $tokenType . " " . $token,
@@ -198,7 +199,7 @@ class JwtAuthControllerTest extends TestCase
     private function assertInvalidToken(string $token, string $tokenType = "bearer"): void
     {
         $response = $this->postJson(
-            route('api.auth.me'),
+            route(sprintf('api.%s.auth.me', self::API_VERSION)),
             [],
             [
                 'Authorization' => $tokenType . " " . $token,
